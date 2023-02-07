@@ -13,13 +13,8 @@
     },
     {
       "tag": "queen",
-<<<<<<< Updated upstream
       "rarity": 2,
       "multiplyer": 1
-=======
-      "rarity": 1,
-      "multiplyer": 2
->>>>>>> Stashed changes
     },
     {
       "tag": " king",
@@ -33,7 +28,7 @@
     },
     {
       "tag": " wild",
-      "rarity": 7,
+      "rarity": 1,
       "multiplyer": 4
     }
   ],
