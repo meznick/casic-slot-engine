@@ -154,7 +154,7 @@ class slot:
                         win_symbol = [symbol.tag,len(win_lines[i])+symbol.multiplyer]
                         break
                     
-                lines_out.append([lines_] + win_symbol)
+                lines_out.append({"indexes":lines_,"symbol":win_symbol[0],"multiplyer":win_symbol[1]})
 
         print(lines_out)
 
