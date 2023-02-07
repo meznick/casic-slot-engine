@@ -8,28 +8,28 @@
     },
     {
       "tag": " jack",
-      "rarity": 1,
+      "rarity": 2,
       "multiplier": 1
     },
     {
       "tag": "queen",
-      "rarity": 2,
-      "multiplier": 2
+      "rarity": 3,
+      "multiplier": 1.5
     },
     {
       "tag": " king",
-      "rarity": 3,
+      "rarity": 4,
       "multiplier": 3
     },
     {
       "tag": " ace ",
-      "rarity": 4,
+      "rarity": 5,
       "multiplier": 4
     },
     {
       "tag": " wild",
-      "rarity": 1,
-      "multiplier": 4
+      "rarity": 10,
+      "multiplier": 5
     }
   ],
   "lines": [
