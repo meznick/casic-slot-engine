@@ -1,7 +1,7 @@
 import json
-from slot_machine import slot
+from slot_machine import SlotMachine
 
-sl = slot()
+sl = SlotMachine()
 
 a = [[0,1],[0,2]]
 

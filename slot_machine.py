@@ -3,15 +3,10 @@ import json
 
 config_path = "config.json"
 
-class slot:
+
+class SlotMachine:
     def __init__(self):
         self.read_config()
-        print(self)
-        for symbol in self.symbols:
-            print(symbol.print())
-        for line in self.lines:
-            print(line)
-        print("Amount of lines:" + str(len(self.lines)))
 
     def __str__(self):
         matrix = str()
@@ -44,7 +39,7 @@ class slot:
             #заполнение списка символов на основе данных конфига
             summ = 0
             for symbol in config["symbols"]:            
-                self.symbols.append(self.symbol(symbol["tag"], symbol["multiplyer"], x/symbol["rarity"], summ))
+                self.symbols.append(self.Symbol(symbol["tag"], symbol["multiplier"], x / symbol["rarity"], summ))
                 summ += x/symbol["rarity"]
 
             self.lines = list() #инициализация списка линий класса line
@@ -75,9 +70,9 @@ class slot:
                         break
             for i in range(len(line_list)):
                 if i not in blacklist:
-                    self.lines.append(self.line(line_list[i]))
+                    self.lines.append(self.Line(line_list[i]))
             
-            self.lines_multiplyer = config["lines_multiplyer"] #подсос из конфига параметров мультпиликатора количества символов в линии
+            self.lines_multiplier = config["lines_multiplier"] #подсос из конфига параметров мультпиликатора количества символов в линии
     
     def roll(self):
         for i in range(len(self.matrix)):
@@ -145,13 +140,13 @@ class slot:
                 for pos in win_lines[i]:
                     lines_.append([pos[0],pos[1]])
                     symbols_.append(pos[2])
-                #win_lines.append([winning_lines[i][0],self.matrix[winning_lines[i][0][0][0]][winning_lines[i][0][0][1]].tag, self.lines_multiplyer[str(count)]+self.matrix[winning_lines[i][0][0][0]][winning_lines[i][0][0][1]].multiplyer])
+                #win_lines.append([winning_lines[i][0],self.matrix[winning_lines[i][0][0][0]][winning_lines[i][0][0][1]].tag, self.lines_multiplier[str(count)]+self.matrix[winning_lines[i][0][0][0]][winning_lines[i][0][0][1]].multiplier])
                 win_symbol = list()
                 for symbol in symbols_:
                     if symbol.tag == " wild":
-                        win_symbol = [symbol.tag,len(win_lines[i])+symbol.multiplyer]
+                        win_symbol = [symbol.tag,len(win_lines[i])+symbol.multiplier]
                     else:
-                        win_symbol = [symbol.tag,len(win_lines[i])+symbol.multiplyer]
+                        win_symbol = [symbol.tag,len(win_lines[i])+symbol.multiplier]
                         break
                     
                 lines_out.append([lines_] + win_symbol)
@@ -164,23 +159,24 @@ class slot:
             }
         return json.dumps(roll_output)
 
-    class symbol:
-        def __init__(self, tag, multiplyer, probability, _range):
+    class Symbol:
+        def __init__(self, tag, multiplier, probability, _range):
             self.tag = tag
-            self.multiplyer = multiplyer
+            self.multiplier = multiplier
             self.probability = probability
             self.range = _range
         
         def print(self):
-            return str(self.tag) +", " + str(self.probability)+", " + str(self.range)
+            return f'{self.tag}, {self.probability}, {self.range}'
     
         def __str__(self):
             return str(self.tag)
 
-    class line:
+    class Line:
         def __init__(self, indexes):
             self.indexes = indexes
-        def __str__ (self):
+
+        def __str__(self):
             return str(self.indexes)
 
 
