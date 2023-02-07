@@ -70,8 +70,15 @@ class SlotMachine:
                         break
             for i in range(len(line_list)):
                 if i not in blacklist:
-                    self.lines.append(self.Line(line_list[i]))
-            
+                    self.lines.append(self.line(line_list[i]))
+
+            for line in line_list:
+                for pos in line:
+                   if pos[0] < 0 or pos[0] > config["scale"][1]-1:
+                       line_list.remove(line)
+                       break
+            for line in line_list:
+                print(line)
             self.lines_multiplier = config["lines_multiplier"] #подсос из конфига параметров мультпиликатора количества символов в линии
     
     def roll(self):
@@ -149,7 +156,7 @@ class SlotMachine:
                         win_symbol = [symbol.tag,len(win_lines[i])+symbol.multiplier]
                         break
                     
-                lines_out.append([lines_] + win_symbol)
+                lines_out.append({"indexes":lines_,"symbol":win_symbol[0],"multiplyer":win_symbol[1]})
 
         print(lines_out)
 
