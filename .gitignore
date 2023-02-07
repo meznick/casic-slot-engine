@@ -398,3 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 slot-machine.pyproj
 tests.py
+tests/roll_output.json
