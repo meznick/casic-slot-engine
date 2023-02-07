@@ -90,47 +90,77 @@ class slot:
                         break
                 if throw >= self.symbols[len(self.symbols)-1].range:
                     self.matrix[i][j] = self.symbols[len(self.symbols)-1]
-        winning_lines = list()
-        win_lines = list()
-        past_lines_signature = list()
+        
+        print(self)
+        slot_lines = list()
+        #заполнение линий символами со слота
         for line in self.lines:
-            count = 1
-            current_line = list()
-            current_line.append([line.indexes[0][0],line.indexes[0][1]])
-            current_line_signature = str(line.indexes[0][0])+str(line.indexes[0][0])
-            for i in range(1,len(line.indexes)):
-
-                if self.matrix[line.indexes[i-1][0]][line.indexes[i-1][1]].tag == self.matrix[line.indexes[i][0]][line.indexes[i][1]].tag:
-                    count = count + 1
-                    current_line.append([line.indexes[i][0],line.indexes[i][1]])
-                    current_line_signature = current_line_signature + str(line.indexes[i][0])+str(line.indexes[i][0])
+            line_ = list()
+            for pos in line.indexes:
+                line_.append([pos[0],pos[1],self.matrix[pos[0]][pos[1]]])
+            slot_lines.append(line_)
+        
+        win_lines = list()
+        for line in slot_lines:
+            line_ = list()
+            line_.append(line[0])
+            for i in range(1,len(line)):
+                check = False
+                if line[i-1][2].tag == " wild":
+                    if line[i][2].tag == " wild":
+                        check = True
+                    else:
+                        k = 0
+                        while (k < i-1):
+                            if (line[k][2].tag == line[i][2].tag) or (line[k][2].tag == " wild"):
+                                check = True
+                            else:
+                                check = False
+                                break
+                            k = k + 1
+                else:
+                    if (line[i][2].tag == line[i-1][2].tag) or (line[i][2].tag == " wild"):
+                        check = True
+                if check:
+                    line_.append(line[i])
                 else:
                     break
-            if count >= 3:
-                if current_line_signature not in past_lines_signature:
-                    winning_lines.append([current_line,current_line_signature])
-                past_lines_signature.append(current_line_signature)
+            if len(line_) >= 3:
+                win_lines.append(line_)
         
         #удаление ненужных линий (повторы, одна линия уже содержится в другой):
         blacklist = list()
-        for i in range(len(winning_lines)):
-            for k in range(len(winning_lines)):
+        for i in range(len(win_lines)):
+            for k in range(len(win_lines)):
                 if i != k:    
-                    if winning_lines[i][1] in winning_lines[k][1]:
-                        blacklist.append(i)
-        for i in range(len(winning_lines)):
+                    if len(win_lines[i]) <= len(win_lines[k]):
+                        if (win_lines[i] == win_lines[k][:len(win_lines[i])]):
+                            blacklist.append(i)
+        
+        lines_out = list()
+        for i in range(len(win_lines)):
             if i not in blacklist:
+                lines_ = list()
+                symbols_ = list()
+                for pos in win_lines[i]:
+                    lines_.append([pos[0],pos[1]])
+                    symbols_.append(pos[2])
                 #win_lines.append([winning_lines[i][0],self.matrix[winning_lines[i][0][0][0]][winning_lines[i][0][0][1]].tag, self.lines_multiplyer[str(count)]+self.matrix[winning_lines[i][0][0][0]][winning_lines[i][0][0][1]].multiplyer])
-                 win_lines.append([winning_lines[i][0],self.matrix[winning_lines[i][0][0][0]][winning_lines[i][0][0][1]].tag,self.matrix[winning_lines[i][0][0][0]][winning_lines[i][0][0][1]].multiplyer+self.lines_multiplyer[str(len(winning_lines[i][0]))]])
-                
-        print(self)
-        #wining_lines.append([current_line,self.matrix[line.indexes[0][0]][line.indexes[0][1]].tag, self.lines_multiplyer[str(count)]+self.matrix[line.indexes[0][0]][line.indexes[0][1]].multiplyer])
-        print(win_lines)
+                win_symbol = list()
+                for symbol in symbols_:
+                    if symbol.tag == " wild":
+                        win_symbol = [symbol.tag,len(win_lines[i])+symbol.multiplyer]
+                    else:
+                        win_symbol = [symbol.tag,len(win_lines[i])+symbol.multiplyer]
+                        break
+                    
+                lines_out.append([lines_] + win_symbol)
 
-        M = self.create_tag_matrix
+        print(lines_out)
+
         roll_output = {
             "matrix": self.create_tag_matrix(),
-            "win_lines": win_lines
+            "win_lines": lines_out
             }
         return json.dumps(roll_output)
 
