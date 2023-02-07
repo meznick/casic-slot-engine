@@ -179,11 +179,21 @@ class SlotMachine:
 
         win_lines_out = list()
         for line in win_lines:
-            print(line)
+            symbol_info_ = list()
+            indexes_ = list()
+            for symbol in line.symbols:
+                if symbol.symbol.tag == " wild":
+                    symbol_info_ = [symbol.symbol.tag,symbol.symbol.multiplier]
+                else:
+                    symbol_info_ = [symbol.symbol.tag,symbol.symbol.multiplier]
+                    break
+            for symbol in line.symbols:
+                indexes_.append([symbol.indexes[0],symbol.indexes[1]])
+            win_lines_out.append({"indexes":indexes_,"symbol":symbol_info_[0],"multiplier":symbol_info_[1]+self.lines_multiplier[str(len(line.symbols))]})
 
         roll_output = {
             "matrix": self.create_tag_matrix(),
-            "win_lines": ""
+            "win_lines": win_lines_out
             }
         return json.dumps(roll_output)
 
