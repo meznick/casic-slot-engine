@@ -9,3 +9,6 @@ while(True):
         sl.roll()
     else:
         break
+
+with open("roll_output.json", 'w') as json_out:
+    json_out.write(sl.roll())

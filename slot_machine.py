@@ -21,6 +21,13 @@ class slot:
             matrix += "|\n"
         return matrix
 
+    def create_tag_matrix(self):
+        tag_matrix = [["x"]*(len(self.matrix)) for i in range(len(self.matrix[0]))]
+        for i in range(len(self.matrix)):
+            for j in range(len(self.matrix[0])):
+                tag_matrix[i][j] = str(self.matrix[i][j])
+        return tag_matrix
+
     def read_config(self):
         with open(config_path) as conf:
             config = json.load(conf) #подсос джысына
@@ -120,8 +127,9 @@ class slot:
         #wining_lines.append([current_line,self.matrix[line.indexes[0][0]][line.indexes[0][1]].tag, self.lines_multiplyer[str(count)]+self.matrix[line.indexes[0][0]][line.indexes[0][1]].multiplyer])
         print(win_lines)
 
+        M = self.create_tag_matrix
         roll_output = {
-            "matrix": str(self),
+            "matrix": self.create_tag_matrix(),
             "win_lines": win_lines
             }
         return json.dumps(roll_output)
