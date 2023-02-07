@@ -227,4 +227,3 @@ class SlotMachine:
                 string = string + str(symbol.indexes[0]) +", " + str(symbol.indexes[1]) + ", " + str(symbol.symbol.tag) + ";"
             return string
 
-
