@@ -76,7 +76,14 @@ class slot:
             for i in range(len(line_list)):
                 if i not in blacklist:
                     self.lines.append(self.line(line_list[i]))
-            
+
+            for line in line_list:
+                for pos in line:
+                   if pos[0] < 0 or pos[0] > config["scale"][1]-1:
+                       line_list.remove(line)
+                       break
+            for line in line_list:
+                print(line)
             self.lines_multiplyer = config["lines_multiplyer"] #подсос из конфига параметров мультпиликатора количества символов в линии
     
     def roll(self):
@@ -172,7 +179,7 @@ class slot:
             self.range = _range
         
         def print(self):
-            return str(self.tag) +", " + str(self.probability)+", " + str(self.range)
+            return str(self.tag) + ", " + str(self.probability)+ ", " + str(self.range)
     
         def __str__(self):
             return str(self.tag)

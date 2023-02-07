@@ -3,11 +3,6 @@ from slot_machine import slot
 
 sl = slot()
 
-a = [[0,1],[0,2]]
-
-b = [[0,1],[0,2],[0,3]]
-
-print (a in b)
 
 while(True):
     flag = input("Roll ?")
