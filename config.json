@@ -4,17 +4,17 @@
     {
       "tag": "  10 ",
       "rarity": 1,
-      "multiplyer": 1
+      "multiplyer": 0
     },
     {
       "tag": " jack",
       "rarity": 1,
-      "multiplyer": 1
+      "multiplyer": 0
     },
     {
       "tag": "queen",
       "rarity": 2,
-      "multiplyer": 2
+      "multiplyer": 1
     },
     {
       "tag": " king",
