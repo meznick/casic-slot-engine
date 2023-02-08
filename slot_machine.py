@@ -44,22 +44,6 @@ class SlotMachine:
             for j in range(len(self.matrix[0])):
                 tag_matrix[i][j] = str(self.matrix[i][j])
         return tag_matrix
-    
-    def print_win_matrix(self):
-        """выводит в консоль матрицу, где сыгровки выделены капсом"""
-        tag_matrix = self.matrix
-        for i in range(len(self.matrix)):
-            for j in range(len(self.matrix[0])):
-                tag_matrix[i][j] = str(self.matrix[i][j])
-        for line in self.win_lines:
-            for symbol in line.symbols:
-                tag_matrix[symbol.indexes[0]][symbol.indexes[1]] = tag_matrix[symbol.indexes[0]][symbol.indexes[1]].upper()
-        matrix = ""
-        for string in tag_matrix:
-            for cell in string:
-                matrix += "| " + str(cell) + " "
-            matrix += "|\n"
-        print(matrix)
 
     
     def symbol_probability(self):
