@@ -47,7 +47,7 @@ class SlotMachine:
 
     def print_win_matrix(self):
         """выводит в консоль матрицу, где сыгровки выделены капсом"""
-        tag_matrix = self.matrix
+        tag_matrix = self.create_tag_matrix()
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix[0])):
                 tag_matrix[i][j] = str(self.matrix[i][j])
