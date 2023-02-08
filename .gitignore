@@ -399,3 +399,4 @@ FodyWeavers.xsd
 slot-machine.pyproj
 /tests/roll_output.json
 tests.py
+/configRTP.json

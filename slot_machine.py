@@ -2,8 +2,6 @@
 import random
 import json
 
-config_path = "config.json"
-
 
 class SlotMachine:
     def __init__(self, config_path):
@@ -25,9 +23,11 @@ class SlotMachine:
             symbols_ = list()
             for pos in line:
                 symbols_.append(self.Line.Symbol([pos[0],pos[1]],NULL))
-            self.lines.append(symbols_)
+            self.lines.append(self.Line(symbols_))
         
         self.lines_multiplier = self.config["lines_multiplier"] #создание списка коэффицентов множителей по линиям
+        self.min_line = self.config["min_line"] #извлечение из конфига минимального числа сыгровок по линиям
+        self.win_lines = list()
 
     def __str__(self):
         matrix = str()
@@ -38,11 +38,28 @@ class SlotMachine:
         return matrix
 
     def create_tag_matrix(self):
-        tag_matrix = [["x"]*(len(self.matrix)) for i in range(len(self.matrix[0]))]
+        """создает матрицу, заполненную тегами символов, для вывода в json"""
+        tag_matrix = self.matrix
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix[0])):
                 tag_matrix[i][j] = str(self.matrix[i][j])
         return tag_matrix
+    
+    def print_win_matrix(self):
+        """выводит в консоль матрицу, где сыгровки выделены капсом"""
+        tag_matrix = self.matrix
+        for i in range(len(self.matrix)):
+            for j in range(len(self.matrix[0])):
+                tag_matrix[i][j] = str(self.matrix[i][j])
+        for line in self.win_lines:
+            for symbol in line.symbols:
+                tag_matrix[symbol.indexes[0]][symbol.indexes[1]] = tag_matrix[symbol.indexes[0]][symbol.indexes[1]].upper()
+        matrix = ""
+        for string in tag_matrix:
+            for cell in string:
+                matrix += "| " + str(cell) + " "
+            matrix += "|\n"
+        print(matrix)
 
     
     def symbol_probability(self):
@@ -121,39 +138,38 @@ class SlotMachine:
     def fill_lines_with_symbols(self):
         """заполняет список линий слота символами на основе матрицы символов"""
         for line in self.lines:
-            for pos in line:
+            for pos in line.symbols:
                 pos.symbol = self.matrix[pos.indexes[0]][pos.indexes[1]]
         return self.lines
 
     def pick_wining_lines(self):
         """выбирает из списка линий слота выигрышные и убирает ненужные повторы, укорачивает их, 
-        если нужно, возвращает список выигрышных линий класса SlotMachine.Line"""
+        если нужно, создает список self.win_lines класса Line, возвращает его"""
         win_lines = list()
         for line in self.lines:
             line_ = self.Line([])
-            line_.symbols.append(line[0])
-            for i in range(1,len(line)):
+            line_.symbols.append(line.symbols[0])
+            for i in range(1,len(line.symbols)):
                 check = False
-                if line[i-1].symbol.tag == " wild":
-                    if line[i].symbol.tag == " wild":
+                if line.symbols[i-1].symbol.tag == " wild":
+                    if line.symbols[i].symbol.tag == " wild":
                         check = True
                     else:
+                        check = True
                         k = 0
                         while (k < i-1):
-                            if (line[k].symbol.tag == line[i].symbol.tag) or (line[k].symbol.tag == " wild"):
-                                check = True
-                            else:
+                            if (line.symbols[k].symbol.tag != line.symbols[i].symbol.tag) or (line.symbols[k].symbol.tag != " wild"):
                                 check = False
                                 break
                             k = k + 1
                 else:
-                    if (line[i].symbol.tag == line[i-1].symbol.tag) or (line[i].symbol.tag == " wild"):
+                    if (line.symbols[i].symbol.tag == line.symbols[i-1].symbol.tag) or (line.symbols[i].symbol.tag == " wild"):
                         check = True
                 if check:
-                    line_.symbols.append(line[i])
+                    line_.symbols.append(line.symbols[i])
                 else:
                     break
-            if len(line_.symbols) >= 3:
+            if len(line_.symbols) >= self.min_line:
                 win_lines.append(line_)
         
         #удаление ненужных линий (повторы, одна линия уже содержится в другой):
@@ -169,16 +185,13 @@ class SlotMachine:
             if i not in blacklist:
                 lines_out.append(win_lines[i])
         
-        return lines_out
+        self.win_lines = lines_out
+        return self.win_lines
 
-    def roll(self):
-        self.generate_symbols()
-        print(self)
-        self.fill_lines_with_symbols()
-        win_lines = self.pick_wining_lines()
-
+    def output_json(self):
+        """на основе матрицы системи и набора выигравших линий формирует JSON-строку для вывода информации"""
         win_lines_out = list()
-        for line in win_lines:
+        for line in self.win_lines:
             symbol_info_ = list()
             indexes_ = list()
             for symbol in line.symbols:
@@ -196,6 +209,19 @@ class SlotMachine:
             "win_lines": win_lines_out
             }
         return json.dumps(roll_output)
+
+    def roll(self):
+        self.win_lines = list() #очищаем список выигравших линий
+        self.generate_symbols()
+        self.fill_lines_with_symbols()
+        self.pick_wining_lines()
+        self.print_win_matrix()
+        
+        output = self.output_json()
+        for win_line in json.loads(output)["win_lines"]:
+            print(win_line)
+        return output
+
 
     class Symbol:
         def __init__(self, tag, multiplier, probability, _range):
@@ -224,7 +250,10 @@ class SlotMachine:
         def __str__(self):
             string = ""
             for symbol in self.symbols:
-                string = string + str(symbol.indexes[0]) +", " + str(symbol.indexes[1]) + ", " + str(symbol.symbol.tag) + ";"
+                tag = ""
+                if symbol.symbol != NULL:
+                    tag = str(symbol.symbol.tag)
+                string = string + str(symbol.indexes[0]) +", " + str(symbol.indexes[1]) + ", " + tag + ";"
             return string
 
 
