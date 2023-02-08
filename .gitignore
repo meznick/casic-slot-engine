@@ -397,5 +397,6 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 slot-machine.pyproj
-tests.py
 /tests/roll_output.json
+tests.py
+/configRTP.json
