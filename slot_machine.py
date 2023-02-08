@@ -189,7 +189,7 @@ class SlotMachine:
                     break
             for symbol in line.symbols:
                 indexes_.append([symbol.indexes[0],symbol.indexes[1]])
-            win_lines_out.append({"indexes":indexes_,"symbol":symbol_info_[0],"multiplier":symbol_info_[1]+self.lines_multiplier[str(len(line.symbols))]})
+            win_lines_out.append({"indexes":indexes_,"symbol":symbol_info_[0],"multiplier":symbol_info_[1]*self.lines_multiplier[str(len(line.symbols))]})
 
         roll_output = {
             "matrix": self.create_tag_matrix(),
