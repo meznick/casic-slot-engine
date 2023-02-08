@@ -39,7 +39,7 @@ class SlotMachine:
 
     def create_tag_matrix(self):
         """создает матрицу, заполненную тегами символов, для вывода в json"""
-        tag_matrix = self.matrix
+        tag_matrix = [["x"]*self.config["scale"][0] for i in range(self.config["scale"][1])]
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix[0])):
                 tag_matrix[i][j] = str(self.matrix[i][j])
