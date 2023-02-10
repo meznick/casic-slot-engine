@@ -27,8 +27,8 @@ def init_service(logger):
         instances = int(environ['INSTANCES'])
     except:
         instances = 1
-    app.config['ENGINE_INSTANCES'] = (
-        SlotMachine('config.json') for i in range(instances)
+    app.config['ENGINE_INSTANCES'] = tuple(
+        [SlotMachine('config.json')] * instances
     )
     app.config['LOGGER'] = logger
     app.config['SCHEDULER_API_ENABLED'] = app.config['DEBUG']
