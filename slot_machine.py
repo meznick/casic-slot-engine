@@ -1,33 +1,52 @@
-﻿from asyncio.windows_events import NULL
-import random
+﻿import random
 import json
+from typing import Dict
 
 
 class SlotMachine:
-    def __init__(self, config_path):
-        self.config = self.read_config(config_path)
-        self.matrix = [["x"]*self.config["scale"][0] for i in range(self.config["scale"][1])] #создание матрицы символов нужного размера
-        probability_coef = self.symbol_probability() #расчет веротяности выпадения сивола с редкостью 1
-        symbols_list = self.symbol_list(probability_coef) #получение списка символов и их параметров
-        
-        #создание списка символов слота класса SlotMachine.Symbol
-        self.symbols = list()
-        for symbol in symbols_list:
-            self.symbols.append(self.Symbol(symbol["tag"],symbol["multiplier"],symbol["probability"],symbol["range"]))
-        
-        lines_ = self.lines_list() #получение списка линий слота на основе шаблона из конфига за вычетом линий, не влезающих в слот
-        
-        #создание списка линий слота класса SlotMachine.Line
-        self.lines = list()
-        for line in lines_:
-            symbols_ = list()
-            for pos in line:
-                symbols_.append(self.Line.Symbol([pos[0],pos[1]],NULL))
-            self.lines.append(self.Line(symbols_))
-        
-        self.lines_multiplier = self.config["lines_multiplier"] #создание списка коэффицентов множителей по линиям
-        self.min_line = self.config["min_line"] #извлечение из конфига минимального числа сыгровок по линиям
-        self.win_lines = list()
+    instances = ()
+
+    @classmethod
+    def choose_available_instance(cls, instance_num=None):
+        if instance_num:
+            if cls.instances[instance_num].status == 'ready':
+                return cls.instances[instance_num]
+        for instance in cls.instances:
+            if instance.status == 'ready':
+                return instance
+
+    @classmethod
+    def add_instance(cls, new):
+        cls.instances = cls.instances + (new,)
+
+    def __init__(self, config_path=None):
+        if config_path:
+            self.config = self.read_config(config_path)
+            self.matrix = [["x"]*self.config["scale"][0] for i in range(self.config["scale"][1])] #создание матрицы символов нужного размера
+            probability_coef = self.symbol_probability() #расчет веротяности выпадения сивола с редкостью 1
+            symbols_list = self.symbol_list(probability_coef) #получение списка символов и их параметров
+
+            #создание списка символов слота класса SlotMachine.Symbol
+            self.symbols = list()
+            for symbol in symbols_list:
+                self.symbols.append(self.Symbol(symbol["tag"],symbol["multiplier"],symbol["probability"],symbol["range"]))
+
+            lines_ = self.lines_list() #получение списка линий слота на основе шаблона из конфига за вычетом линий, не влезающих в слот
+
+            #создание списка линий слота класса SlotMachine.Line
+            self.lines = list()
+            for line in lines_:
+                symbols_ = list()
+                for pos in line:
+                    symbols_.append(self.Line.Symbol([pos[0],pos[1]],None))
+                self.lines.append(self.Line(symbols_))
+
+            self.lines_multiplier = self.config["lines_multiplier"] #создание списка коэффицентов множителей по линиям
+            self.min_line = self.config["min_line"] #извлечение из конфига минимального числа сыгровок по линиям
+            self.win_lines = list()
+        self.id = len(self.instances)
+        SlotMachine.add_instance(self)
+        self.status = 'ready'
 
     def __str__(self):
         matrix = str()
@@ -187,7 +206,7 @@ class SlotMachine:
         self.win_lines = lines_out
         return self.win_lines
 
-    def output_json(self):
+    def output_json(self) -> Dict:
         """на основе матрицы системи и набора выигравших линий формирует JSON-строку для вывода информации"""
         win_lines_out = list()
         for line in self.win_lines:
@@ -207,7 +226,7 @@ class SlotMachine:
             "matrix": self.create_tag_matrix(),
             "win_lines": win_lines_out
             }
-        return json.dumps(roll_output)
+        return roll_output
 
     def roll(self):
         self.win_lines = list() #очищаем список выигравших линий
@@ -217,10 +236,9 @@ class SlotMachine:
         self.print_win_matrix()
         
         output = self.output_json()
-        for win_line in json.loads(output)["win_lines"]:
+        for win_line in output["win_lines"]:
             print(win_line)
         return output
-
 
     class Symbol:
         def __init__(self, tag, multiplier, probability, _range):
@@ -250,7 +268,7 @@ class SlotMachine:
             string = ""
             for symbol in self.symbols:
                 tag = ""
-                if symbol.symbol != NULL:
+                if symbol.symbol != None:
                     tag = str(symbol.symbol.tag)
                 string = string + str(symbol.indexes[0]) +", " + str(symbol.indexes[1]) + ", " + tag + ";"
             return string
