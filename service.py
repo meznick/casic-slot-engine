@@ -4,6 +4,7 @@ from typing import Tuple, Dict
 
 from flask import Flask
 from flask_apscheduler import APScheduler
+from flask_cors import cross_origin
 
 from slot_machine import SlotMachine
 
@@ -61,6 +62,7 @@ def health() -> Tuple[Dict, int]:
 
 
 @app.route('/spin', methods=['GET'])
+@cross_origin()
 def spin(mode='normal', instance_num=None) -> Tuple[Dict, int]:
     """
     API endpoint for calling engine to make a spin.
@@ -95,4 +97,4 @@ scheduler.start()
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', port=5000)

@@ -2,7 +2,7 @@
   "scale": [ 5, 5 ],
   "symbols": [
     {
-      "tag": "  10 ",
+      "tag": " ten ",
       "rarity": 1,
       "multiplier": 1
     },
@@ -15,21 +15,6 @@
       "tag": "queen",
       "rarity": 3,
       "multiplier": 1.5
-    },
-    {
-      "tag": " king",
-      "rarity": 4,
-      "multiplier": 3
-    },
-    {
-      "tag": " ace ",
-      "rarity": 5,
-      "multiplier": 4
-    },
-    {
-      "tag": " wild",
-      "rarity": 10,
-      "multiplier": 5
     }
   ],
   "lines": [
