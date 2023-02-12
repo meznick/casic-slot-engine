@@ -1,7 +1,7 @@
-﻿from asyncio.windows_events import NULL
-import random
+﻿import random
 import json
-
+from itertools import groupby
+from decimal import Decimal
 
 class SlotMachine:
     def __init__(self, config_path):
@@ -14,7 +14,8 @@ class SlotMachine:
         self.symbols = list()
         for symbol in symbols_list:
             self.symbols.append(self.Symbol(symbol["tag"],symbol["multiplier"],symbol["probability"],symbol["range"]))
-        
+        for symbol in self.symbols:
+            symbol.print()
         lines_ = self.lines_list() #получение списка линий слота на основе шаблона из конфига за вычетом линий, не влезающих в слот
         
         #создание списка линий слота класса SlotMachine.Line
@@ -22,13 +23,85 @@ class SlotMachine:
         for line in lines_:
             symbols_ = list()
             for pos in line:
-                symbols_.append(self.Line.Symbol([pos[0],pos[1]],NULL))
+                symbols_.append(self.Line.Symbol([pos[0],pos[1]],None))
             self.lines.append(self.Line(symbols_))
         
         self.lines_multiplier = self.config["lines_multiplier"] #создание списка коэффицентов множителей по линиям
         self.min_line = self.config["min_line"] #извлечение из конфига минимального числа сыгровок по линиям
         self.win_lines = list()
+        #self.RTP_calculator()
+    
+    def RTP_calculator(self):
+        pos = list()
+        for i in range(self.config["scale"][1]):
+            for j in range(self.config["scale"][0]):
+                pos.append(self.symbols[0])
+        global RTP 
+        global total_prob
+        global overall
+        global unique
+        overall = 0
+        unique = 0
+        def alt_place(n,i=1,sequence = []):
+            print(i) 
+            #for pos in sequence:
+            #    print(pos)
+            print(len(sequence))
+            if i > n:
+                return sequence
+            else:
+                new_sequence = list()
+                if len(sequence) == 0:
+                    for symbol in self.symbols:
+                        new_sequence.append([symbol])
+                    return alt_place(n,i+1,new_sequence)
+                else:
+                    for symbol in self.symbols:
+                        for pos in sequence:
+                            comb = list()
+                            comb.append(symbol)
+                            for sym in pos:
+                                comb.append(sym)
+                            new_sequence.append(comb)
+                    return alt_place(n,i+1,new_sequence)
+        
+        comb_list = alt_place(self.config["scale"][1]*self.config["scale"][0])
 
+        win_positions = list()
+        for line in self.lines:
+            line_ = list()
+            for sym in line.symbols:
+                line_.append(self.Line.Symbol(sym.indexes[0]*self.config["scale"][0]+sym.indexes[1],None))
+            win_positions.append(self.Line(line_))
+        for pos_ in win_positions:
+            print(pos_)
+        
+        RTP = Decimal(0)
+        total_prob = Decimal(0)        
+        for comb in comb_list:
+            self.win_lines = list()
+            for line_ in win_positions:
+                for sym_ in line_.symbols:
+                    sym_.symbol = comb[sym_.indexes]
+            self.pick_wining_lines(win_positions)
+            prob = Decimal(0)
+            total_win = Decimal(0)
+            for line in self.win_lines:
+                win_symbol = self.Symbol()
+                for symbol in line.symbols:
+                    win_symbol = symbol
+                    if symbol.symbol.tag != " wild":
+                        break
+                total_win = total_win + Decimal(win_symbol.symbol.multiplier)*Decimal(self.lines_multiplier[str(len(line.symbols))])
+            if len(self.win_lines) != 0:
+                prob = Decimal(1)
+                for pos_ in comb:
+                    prob = prob*Decimal(pos_.probability)
+            total_prob = total_prob + prob
+            RTP = RTP + total_win*prob
+        print("Theoretical chance to win(alt_place): " + str(total_prob))
+        print("Theoretical RTP(alt_place): " + str(RTP))                  
+        
     def __str__(self):
         matrix = str()
         for string in self.matrix:
@@ -36,6 +109,14 @@ class SlotMachine:
                 matrix += "| " + str(cell) + " "
             matrix += "|\n"
         return matrix
+
+    def print(self, matrix):
+        out = ""
+        for string in matrix:
+            for cell in string:
+                out += "| " + str(cell) + " "
+            out += "|\n"
+        print(out)
 
     def create_tag_matrix(self):
         """создает матрицу, заполненную тегами символов, для вывода в json"""
@@ -108,14 +189,6 @@ class SlotMachine:
                 lines_.append(line_list[i])
         return lines_
 
-        #for line in line_list:
-        #    for pos in line:
-        #        if pos[0] < 0 or pos[0] > config["scale"][1]-1:
-        #           line_list.remove(line)
-        #           break
-        #for line in line_list:
-        #    print(line)
-
     def read_config(self, config_path):
         with open(config_path) as conf:
             return json.load(conf) #подсос джысына
@@ -134,18 +207,24 @@ class SlotMachine:
                     self.matrix[i][j] = self.symbols[len(self.symbols)-1]
         return self.matrix
 
-    def fill_lines_with_symbols(self):
+    def fill_lines_with_symbols(self, matrix = None, lines = None):
         """заполняет список линий слота символами на основе матрицы символов"""
-        for line in self.lines:
+        if matrix == None:
+            matrix = self.matrix
+        if lines == None:
+            lines = self.lines
+        for line in lines:
             for pos in line.symbols:
-                pos.symbol = self.matrix[pos.indexes[0]][pos.indexes[1]]
-        return self.lines
+                pos.symbol = matrix[pos.indexes[0]][pos.indexes[1]]
+        return lines
 
-    def pick_wining_lines(self):
+    def pick_wining_lines(self, lines = None):
         """выбирает из списка линий слота выигрышные и убирает ненужные повторы, укорачивает их, 
         если нужно, создает список self.win_lines класса Line, возвращает его"""
+        if lines == None:
+            lines = self.lines
         win_lines = list()
-        for line in self.lines:
+        for line in lines:
             line_ = self.Line([])
             line_.symbols.append(line.symbols[0])
             for i in range(1,len(line.symbols)):
@@ -156,8 +235,8 @@ class SlotMachine:
                     else:
                         check = True
                         k = 0
-                        while (k < i-1):
-                            if (line.symbols[k].symbol.tag != line.symbols[i].symbol.tag) or (line.symbols[k].symbol.tag != " wild"):
+                        while (k < i):
+                            if (line.symbols[k].symbol.tag != line.symbols[i].symbol.tag) and (line.symbols[k].symbol.tag != " wild"):
                                 check = False
                                 break
                             k = k + 1
@@ -209,28 +288,34 @@ class SlotMachine:
             }
         return json.dumps(roll_output)
 
-    def roll(self):
+    def roll(self, debug = True):  
         self.win_lines = list() #очищаем список выигравших линий
         self.generate_symbols()
         self.fill_lines_with_symbols()
         self.pick_wining_lines()
-        self.print_win_matrix()
+        if debug:
+            self.print_win_matrix()
         
         output = self.output_json()
-        for win_line in json.loads(output)["win_lines"]:
-            print(win_line)
+        if debug:
+            for win_line in json.loads(output)["win_lines"]:
+                print(win_line)
+        
         return output
 
 
     class Symbol:
-        def __init__(self, tag, multiplier, probability, _range):
+        def __init__(self, tag = "x", multiplier = 1, probability = 1, _range = 1):
             self.tag = tag
             self.multiplier = multiplier
             self.probability = probability
             self.range = _range
         
+        def __eq__(self,other):
+            return other is not None and self.tag == other.tag
+
         def print(self):
-            return f'{self.tag}, {self.probability}, {self.range}'
+            print(f'{self.tag}, {self.probability}, {self.range}')
     
         def __str__(self):
             return str(self.tag)
@@ -238,7 +323,7 @@ class SlotMachine:
     class Line:
         def __init__(self,symbols):
             self.symbols = symbols
-            
+        
         class Symbol:
             def __init__(self,indexes,symbol):
                 self.indexes = indexes
@@ -250,8 +335,8 @@ class SlotMachine:
             string = ""
             for symbol in self.symbols:
                 tag = ""
-                if symbol.symbol != NULL:
+                if symbol.symbol != None:
                     tag = str(symbol.symbol.tag)
-                string = string + str(symbol.indexes[0]) +", " + str(symbol.indexes[1]) + ", " + tag + ";"
+                string = string + str(symbol.indexes) + ", tag: " + tag + "; "
             return string
 
