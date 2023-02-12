@@ -32,20 +32,8 @@ class SlotMachine:
         #self.RTP_calculator()
     
     def RTP_calculator(self):
-        pos = list()
-        for i in range(self.config["scale"][1]):
-            for j in range(self.config["scale"][0]):
-                pos.append(self.symbols[0])
-        global RTP 
-        global total_prob
-        global overall
-        global unique
-        overall = 0
-        unique = 0
         def alt_place(n,i=1,sequence = []):
-            print(i) 
-            #for pos in sequence:
-            #    print(pos)
+            print(i)
             print(len(sequence))
             if i > n:
                 return sequence
@@ -73,8 +61,6 @@ class SlotMachine:
             for sym in line.symbols:
                 line_.append(self.Line.Symbol(sym.indexes[0]*self.config["scale"][0]+sym.indexes[1],None))
             win_positions.append(self.Line(line_))
-        for pos_ in win_positions:
-            print(pos_)
         
         RTP = Decimal(0)
         total_prob = Decimal(0)        
