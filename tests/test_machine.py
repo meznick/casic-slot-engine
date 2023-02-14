@@ -8,7 +8,7 @@ CONFIG_PATH = 'tests/test_config.json'
 
 class TestMachine(TestCase):
     def test_config_reading(self):
-        slot = SlotMachine()
+        slot = SlotMachine(CONFIG_PATH)
         with open(CONFIG_PATH, 'r') as cfg:
             config = json.loads(cfg.read())
         assert len(slot.matrix) == config['scale'][0]
