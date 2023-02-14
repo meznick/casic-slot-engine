@@ -1,19 +1,19 @@
 {
-  "scale": [ 3, 3 ],
+  "scale": [ 3, 2 ],
   "symbols": [
     {
       "tag": " jack",
       "rarity": 1,
-      "multiplier": 0
+      "multiplier": 0.25
     },
     {
       "tag": "queen",
-      "rarity": 2,
-      "multiplier": 0
+      "rarity": 1,
+      "multiplier": 0.25
     },
     {
       "tag": " king",
-      "rarity": 3,
+      "rarity": 4,
       "multiplier": 1
     },
     {
@@ -28,9 +28,10 @@
     "su"
   ],
   "lines_multiplier": {
-    "3": 1,
-    "4": 2,
-    "5": 3
+    "2": 1,
+    "3": 2,
+    "4": 3,
+    "5": 5
   },
   "min_line": 2
 
