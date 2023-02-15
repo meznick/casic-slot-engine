@@ -2,7 +2,7 @@
   "scale": [ 3, 2 ],
   "symbols": [
     {
-      "tag": " jack",
+      "tag": " ten ",
       "rarity": 1,
       "multiplier": 0.25
     },
@@ -17,15 +17,19 @@
       "multiplier": 1
     },
     {
-      "tag": " wild",
-      "rarity": 5,
-      "multiplier": 4
+      "tag": "queen",
+      "rarity": 3,
+      "multiplier": 1.5
     }
   ],
   "lines": [
-    "ss",
-    "sd",
-    "su"
+    "ssss",
+    "sdss",
+    "suss",
+    "sdds",
+    "suus",
+    "ssds",
+    "ssus"
   ],
   "lines_multiplier": {
     "2": 1,
