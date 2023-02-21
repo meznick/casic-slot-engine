@@ -18,13 +18,16 @@ class SlotMachine:
     def add_instance(cls, new):
         cls.instances = cls.instances + (new,)
 
-    def __init__(self, config_path):
+    def __init__(self, config_path=None, logger=None):
         self.id = len(self.instances)
         SlotMachine.add_instance(self)
         self.status = 'ready'
 
         if not config_path:
             return
+
+        if logger:
+            self.log = logger
 
         self.config = self.read_config(config_path)
         #  creating a character matrix of the desired size
