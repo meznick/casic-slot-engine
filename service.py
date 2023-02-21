@@ -41,7 +41,7 @@ scheduler = APScheduler()
 scheduler.init_app(app)
 
 
-@scheduler.task('cron', id='manage_workers', minute='*')
+@scheduler.task('cron', id='manage_workers', minute='*/15')
 def manage_workers() -> None:
     """
     Regular check if current amount of workers is OK for current load.
