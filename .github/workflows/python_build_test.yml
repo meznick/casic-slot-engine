@@ -26,4 +26,4 @@ jobs:
           flake8 . --count --exit-zero --max-complexity=10 --max-line=100 \
           --statistics
       - name: Perform unit tests
-        run: python -m unittest --verbose
+        run: python -m pytest -v
