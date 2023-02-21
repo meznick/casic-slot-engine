@@ -382,13 +382,13 @@ class SlotMachine:
         self.generate_symbols()
         self.fill_lines_with_symbols()
         self.pick_wining_lines()
-        if debug:
-            self.print_win_matrix()
-
+        # if debug:
+        #     self.print_win_matrix()
+        #
         output = self.output_json()
-        if debug:
-            for win_line in json.loads(output)["win_lines"]:
-                print(win_line)
+        # if debug:
+        #     for win_line in json.loads(output)["win_lines"]:
+        #         print(win_line)
 
         return output
 
