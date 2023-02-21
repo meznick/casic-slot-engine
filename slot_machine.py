@@ -29,9 +29,11 @@ class SlotMachine:
         self.config = self.read_config(config_path)
         #  creating a character matrix of the desired size
         self.matrix = [
-            ["x"] * self.config["scale"][0] for i in range(self.config["scale"][1])
+            ["x"] * self.config["scale"][0]
+            for i in range(self.config["scale"][1])
         ]
-        #  calculation of the probability of a symbol falling out with a rarity of 1
+        #  calculation of the probability of a
+        #  symbol falling out with a rarity of 1
         probability_coef = self.symbol_probability()
         #  getting a list of symbols and their parameters
         symbols_list = self.symbol_list(probability_coef)
@@ -50,7 +52,8 @@ class SlotMachine:
 
         for symbol in self.symbols:
             symbol.print()
-        #  getting a list of slot lines based on a template from the config minus lines that do not fit into the slot
+        # getting a list of slot lines based on a template from
+        # the config minus lines that do not fit into the slot
         lines_ = self.lines_list()
 
         #  creating a list of slot lines
@@ -68,18 +71,21 @@ class SlotMachine:
         #  creating a list of winning lines
         self.win_lines = list()
 
-    def calculate_probability_and_RTP(self):
-        def get_all_combinations(
-            n, i=1, sequence=[]
-        ):  #  n - number of positions, other arguments needed
-            #  for recursion
+    def calculate_probability_and_rtp(self):
+        def get_all_combinations(n, i=1, sequence=None):
+            """
+            :param n: number of positions, other arguments needed for recursion
+            :param i:
+            :param sequence:
+            :return:
+            """
             print(i)
             print(len(sequence))
             if i > n:
                 return sequence
             else:
                 new_sequence = list()
-                if len(sequence) == 0:
+                if sequence is None:
                     for symbol in self.symbols:
                         new_sequence.append([symbol])
                     return get_all_combinations(n, i + 1, new_sequence)
@@ -93,19 +99,21 @@ class SlotMachine:
                             new_sequence.append(comb)
                     return get_all_combinations(n, i + 1, new_sequence)
 
-        #  turning a list of slot lines into a one-dimensional array of positions
+        # turning a list of slot lines into a
+        # one-dimensional array of positions
         win_positions = list()
         for line in self.lines:
             line_ = list()
             for sym in line:
                 line_.append(
                     self.Placed_Symbol(
-                        sym.indexes[0] * self.config["scale"][0] + sym.indexes[1]
+                        sym.indexes[0] * self.config["scale"][0] +
+                        sym.indexes[1]
                     )
                 )
             win_positions.append(line_)
 
-        RTP = 0
+        rtp = 0
         total_prob = 0
         for comb in get_all_combinations(
             self.config["scale"][1] * self.config["scale"][0]
@@ -122,16 +130,19 @@ class SlotMachine:
                         break
                 total_win = (
                     total_win
-                    + win_symbol.multiplier * self.lines_multiplier[str(len(line))]
+                    + (
+                        win_symbol.multiplier *
+                        self.lines_multiplier[str(len(line))]
+                    )
                 )
             if len(self.win_lines) != 0:
                 prob = 1
                 for pos_ in comb:
                     prob = prob * pos_.probability
             total_prob = total_prob + prob
-            RTP = RTP + total_win * prob
+            rtp = rtp + total_win * prob
         print("Theoretical chance to win(alt_place): " + str(total_prob))
-        print("Theoretical RTP(alt_place): " + str(RTP))
+        print("Theoretical RTP(alt_place): " + str(rtp))
 
     def __str__(self):
         matrix = str()
@@ -150,9 +161,10 @@ class SlotMachine:
         print(out)
 
     def create_tag_matrix(self):
-        """creates a matrix filled with character tags to output to json"""
+        """Creates a matrix filled with character tags to output to json."""
         tag_matrix = [
-            ["x"] * self.config["scale"][0] for i in range(self.config["scale"][1])
+            ["x"] * self.config["scale"][0]
+            for i in range(self.config["scale"][1])
         ]
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix[0])):
@@ -160,7 +172,10 @@ class SlotMachine:
         return tag_matrix
 
     def print_win_matrix(self):
-        """prints a matrix to the console, where the performances are highlighted with caps"""
+        """
+        Prints a matrix to the console, where the performances are
+        highlighted with caps.
+        """
         tag_matrix = self.create_tag_matrix()
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix[0])):
@@ -185,7 +200,11 @@ class SlotMachine:
         return 1 / summ
 
     def symbol_list(self, coef):
-        """creates a list of dictionaries with information about symbols (name, multiplier, probability of falling out, segment boundaries for random)"""
+        """
+        Creates a list of dictionaries with information about symbols
+        (name, multiplier, probability of falling out, segment
+        boundaries for random).
+        """
         summ = 0
         symbols_ = list()
         for symbol in self.config["symbols"]:
@@ -201,7 +220,10 @@ class SlotMachine:
         return symbols_
 
     def lines_list(self):
-        """creates sets of indices corresponding to line types, removes unnecessary ones, returns as a list"""
+        """
+        Creates sets of indices corresponding to line types, removes unnecessary
+        ones, returns as a list.
+        """
         line_list = list()
         for lin in self.config["lines"]:
             for i in range(len(self.matrix)):
@@ -219,7 +241,6 @@ class SlotMachine:
                     line.append([l, k])
                     k = k + 1
                 line_list.append(line)
-        blacklist = list()
 
         #  removal of lines that crawl out of the slot
         def remove_line(line):
@@ -235,7 +256,10 @@ class SlotMachine:
             return json.load(conf)
 
     def generate_symbols(self):
-        """in each of the cells of the slot matrix, we generate symbols according to their probabilities, returns the matrix of the slot instance"""
+        """
+        In each of the cells of the slot matrix, we generate symbols according
+        to their probabilities, returns the matrix of the slot instance.
+        """
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix[0])):
                 throw = random.uniform(0, 1)
@@ -249,25 +273,32 @@ class SlotMachine:
                     self.matrix[i][j] = self.symbols[len(self.symbols) - 1]
         return self.matrix
 
-    def fill_lines_with_symbols(self, matrix=None, lines=None, type="2d"):
-        """populates a list of slot lines with characters based on a character matrix"""
+    def fill_lines_with_symbols(self, matrix=None, lines=None, line_type="2d"):
+        """
+        Populates a list of slot lines with characters
+        based on a character matrix.
+        """
         if matrix is None:
             matrix = self.matrix
         if lines is None:
             lines = self.lines
         for line in lines:
             for symbol in line:
-                if type == "2d":
+                if line_type == "2d":
                     symbol.get_symbol(matrix[symbol.indexes[0]][symbol.indexes[1]])
-                if type == "1d":
+                if line_type == "1d":
                     symbol.get_symbol(matrix[symbol.indexes])
         return lines
 
     def pick_wining_lines(self, lines=None):
-        """chooses winning lines from the list of slots and removes unnecessary repetitions, shortens them,
-        if necessary, creates a list of winning lines filled with symbols (class Placed_Symbol)"""
+        """
+        Chooses winning lines from the list of slots and removes
+        unnecessary repetitions, shortens them,
+        if necessary, creates a list of winning lines filled
+        with symbols (class Placed_Symbol).
+        """
         self.win_lines = list()
-        if lines == None:
+        if lines is None:
             lines = self.lines
         win_lines = list()
         for line in lines:
@@ -313,7 +344,10 @@ class SlotMachine:
         return self.win_lines
 
     def output_json(self):
-        """based on the system matrix and the set of winning lines, generates a JSON string for displaying information"""
+        """
+        Based on the system matrix and the set of winning lines,
+        generates a JSON string for displaying information.
+        """
         win_lines_out = list()
         for line in self.win_lines:
             symbol_info_ = list()
@@ -335,7 +369,10 @@ class SlotMachine:
                 }
             )
 
-        roll_output = {"matrix": self.create_tag_matrix(), "win_lines": win_lines_out}
+        roll_output = {
+            "matrix": self.create_tag_matrix(),
+            "win_lines": win_lines_out
+        }
         return json.dumps(roll_output)
 
     def roll(self, debug=True):
