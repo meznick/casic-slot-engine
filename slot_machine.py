@@ -1,10 +1,31 @@
 ﻿import random
 import json
-from itertools import groupby
 
 
 class SlotMachine:
+    instances = ()
+
+    @classmethod
+    def choose_available_instance(cls, instance_num=None):
+        if instance_num:
+            if cls.instances[instance_num].status == 'ready':
+                return cls.instances[instance_num]
+        for instance in cls.instances:
+            if instance.status == 'ready':
+                return instance
+
+    @classmethod
+    def add_instance(cls, new):
+        cls.instances = cls.instances + (new,)
+
     def __init__(self, config_path):
+        self.id = len(self.instances)
+        SlotMachine.add_instance(self)
+        self.status = 'ready'
+
+        if not config_path:
+            return
+
         self.config = self.read_config(config_path)
         #  creating a character matrix of the desired size
         self.matrix = [
