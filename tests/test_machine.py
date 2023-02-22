@@ -27,6 +27,7 @@ class TestMachine(TestCase):
     def test_symbol_probability(self):
         with open(GOOD_CONFIG_PATH, 'r') as cfg:
             symbols = json.loads(cfg.read())['symbols']
+            # How to calculate actual probability:
             # x = sum(min_rarity / rarity)
             # symbol probability = min_rarity / (rarity * x)
             min_rarity = min([s['multiplier'] for s in symbols])
@@ -40,12 +41,12 @@ class TestMachine(TestCase):
                 for k
                 in stp.keys()
             ])
-            # check if total probability is 1
-            assert 1.001 >= checksum >= 0.999
+            with self.subTest('Checking if total probability is 1'):
+                assert 1.001 >= checksum >= 0.999
             results = 0
             # sd = symbol drops
             sd = {s['tag']: 0 for s in symbols}
-            max_results = 10000000
+            max_results = 20000000
             # generate enough rolls to calculate real probabilities
             while results < max_results:
                 roll_result = json.loads(self.slot.roll())['matrix']
@@ -63,10 +64,15 @@ class TestMachine(TestCase):
                 sd[k] for k in sd.keys()
             ])
             assert max_results - 15 <= checksum <= max_results + 15
-            # todo: add pytest subtests
             for symbol in stp.keys():
-                sq_err = (sd[symbol] / checksum - stp[symbol])**2 / stp[symbol]
-                assert sq_err <= 0.1 ** 6
+                with self.subTest(
+                        msg='Testing real symbol probability.',
+                        symbol=symbol
+                ):
+                    sq_err = (
+                        (sd[symbol] / checksum - stp[symbol]) / stp[symbol]
+                    ) ** 2
+                    assert sq_err <= 0.1 ** 6
 
     def test_symbol_list(self):
         pass
