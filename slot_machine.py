@@ -1,6 +1,8 @@
 ﻿import random
 import json
 
+from config import CONFIG_PATH
+
 
 class SlotMachine:
     instances = ()
@@ -19,12 +21,12 @@ class SlotMachine:
         cls.instances = cls.instances + (new,)
 
     def __init__(self, config_path=None, logger=None):
+        if not config_path:
+            return
+
         self.id = len(self.instances)
         SlotMachine.add_instance(self)
         self.status = 'ready'
-
-        if not config_path:
-            return
 
         if logger:
             self.log = logger
@@ -254,8 +256,10 @@ class SlotMachine:
 
         return list(filter(remove_line, line_list))
 
-    def read_config(self, config_path):
+    @staticmethod
+    def read_config(config_path):
         with open(config_path) as conf:
+            # todo: verify config on load
             return json.load(conf)
 
     def generate_symbols(self):
