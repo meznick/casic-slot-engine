@@ -101,6 +101,20 @@ class TestMachine(TestCase):
     def test_duplicate_win_lines(self):
         pass
 
+    def test_rtp(self):
+        # this method does not work
+        # _, control_rtp = self.slot.calculate_probability_and_rtp()
+        _, control_rpt = 0, 0
+        spend = 0
+        win = 0
+        while spend < 100000:
+            spend += 1
+            roll_result = self.slot.roll()
+            for line in json.loads(roll_result)['win_lines']:
+                win += line['multiplier']
+        rtp = win / spend
+        self.assertEqual(rtp, control_rpt)
+
 
 if __name__ == "__main__":
     main()

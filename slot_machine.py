@@ -1,7 +1,6 @@
-﻿import random
+﻿import logging
+import random
 import json
-
-from config import CONFIG_PATH
 
 
 class SlotMachine:
@@ -30,6 +29,8 @@ class SlotMachine:
 
         if logger:
             self.log = logger
+        else:
+            self._set_default_logger()
 
         self.config = self.read_config(config_path)
         #  creating a character matrix of the desired size
@@ -76,6 +77,10 @@ class SlotMachine:
         #  creating a list of winning lines
         self.win_lines = list()
 
+    def _set_default_logger(self):
+        self.log = logging.getLogger(__name__)
+        self.log.setLevel(logging.DEBUG)
+
     def calculate_probability_and_rtp(self):
         def get_all_combinations(n, i=1, sequence=None):
             """
@@ -84,8 +89,6 @@ class SlotMachine:
             :param sequence:
             :return:
             """
-            print(i)
-            print(len(sequence))
             if i > n:
                 return sequence
             else:
@@ -93,6 +96,7 @@ class SlotMachine:
                 if sequence is None:
                     for symbol in self.symbols:
                         new_sequence.append([symbol])
+                    import pdb; pdb.set_trace()
                     return get_all_combinations(n, i + 1, new_sequence)
                 else:
                     for symbol in self.symbols:
@@ -102,6 +106,7 @@ class SlotMachine:
                             for sym in pos:
                                 comb.append(sym)
                             new_sequence.append(comb)
+                    import pdb; pdb.set_trace()
                     return get_all_combinations(n, i + 1, new_sequence)
 
         # turning a list of slot lines into a
@@ -117,9 +122,11 @@ class SlotMachine:
                     )
                 )
             win_positions.append(line_)
+        self.log.debug(f'Win positions: {win_positions}')
 
         rtp = 0
         total_prob = 0
+        import pdb; pdb.set_trace()
         for comb in get_all_combinations(
             self.config["scale"][1] * self.config["scale"][0]
         ):
@@ -148,6 +155,7 @@ class SlotMachine:
             rtp = rtp + total_win * prob
         print("Theoretical chance to win(alt_place): " + str(total_prob))
         print("Theoretical RTP(alt_place): " + str(rtp))
+        return total_prob, rtp
 
     def __str__(self):
         matrix = str()
