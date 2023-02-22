@@ -27,3 +27,16 @@ jobs:
           --statistics
       - name: Perform unit tests
         run: python -m pytest -v
+
+  generate_coverage_badge:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Generate Badge
+        uses: cicirello/jacoco-badge-generator@v2
+        with:
+          jacoco-csv-file: build/reports/jacoco/test/jacocoTestReport.csv
+          badges-directory: build/reports/jacoco/test/html/badges
+      - name: Publish Coverage Report
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build/reports/jacoco/test/html
