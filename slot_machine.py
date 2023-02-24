@@ -48,7 +48,7 @@ class SlotMachine:
         self.symbols = list()
         for symbol in symbols_list:
             self.symbols.append(
-                self.Symbol(
+                Symbol(
                     symbol["tag"],
                     symbol["multiplier"],
                     symbol["probability"],
@@ -67,7 +67,7 @@ class SlotMachine:
         for line in lines_:
             symbols_ = list()
             for pos in line:
-                symbols_.append(self.Placed_Symbol(pos))
+                symbols_.append(PlacedSymbol(pos))
             self.lines.append(symbols_)
 
         #  creating a list of multiplier coefficients by lines
@@ -81,57 +81,38 @@ class SlotMachine:
         self.log = logging.getLogger(__name__)
         self.log.setLevel(logging.DEBUG)
 
+    @staticmethod
+    def _convert_to(number, base):
+        digits = '0123456789abcdefghijklmnopqrstuvwxyz'
+        result = ''
+        while number > 0:
+            result = digits[number % base] + result
+            number //= base
+        return result
+
+    @classmethod
+    def _str_representation(cls, value, base, repr_len):
+        value = cls._convert_to(value, base)
+        return '0' * (repr_len - len(str(value))) + str(value)
+
+    def generate_all_combinations(self):
+        n = self.config['scale'][0] * self.config['scale'][1]
+        base = len(self.symbols)
+        combination_num = 0
+        while combination_num < len(self.symbols) ** n:
+            self._str_representation(combination_num, base, n)
+            yield [
+                self.symbols[int(x)]
+                for x in self._str_representation(combination_num, base, n)
+            ]
+            combination_num += 1
+
     def calculate_probability_and_rtp(self):
-        def get_all_combinations(n, i=1, sequence=None):
-            """
-            :param n: number of positions, other arguments needed for recursion
-            :param i:
-            :param sequence:
-            :return:
-            """
-            if i > n:
-                return sequence
-            else:
-                new_sequence = list()
-                if sequence is None:
-                    for symbol in self.symbols:
-                        new_sequence.append([symbol])
-                    import pdb; pdb.set_trace()
-                    return get_all_combinations(n, i + 1, new_sequence)
-                else:
-                    for symbol in self.symbols:
-                        for pos in sequence:
-                            comb = list()
-                            comb.append(symbol)
-                            for sym in pos:
-                                comb.append(sym)
-                            new_sequence.append(comb)
-                    import pdb; pdb.set_trace()
-                    return get_all_combinations(n, i + 1, new_sequence)
-
-        # turning a list of slot lines into a
-        # one-dimensional array of positions
-        win_positions = list()
-        for line in self.lines:
-            line_ = list()
-            for sym in line:
-                line_.append(
-                    self.Placed_Symbol(
-                        sym.indexes[0] * self.config["scale"][0] +
-                        sym.indexes[1]
-                    )
-                )
-            win_positions.append(line_)
-        self.log.debug(f'Win positions: {win_positions}')
-
         rtp = 0
         total_prob = 0
-        import pdb; pdb.set_trace()
-        for comb in get_all_combinations(
-            self.config["scale"][1] * self.config["scale"][0]
-        ):
-            self.fill_lines_with_symbols(comb, win_positions, "1d")
-            self.pick_wining_lines(win_positions)
+        for comb in self.generate_all_combinations():
+            self.fill_lines_with_symbols(comb, self.win_positions, "1d")
+            self.pick_wining_lines(self.win_positions)
             prob = 0
             total_win = 0
             for line in self.win_lines:
@@ -153,9 +134,26 @@ class SlotMachine:
                     prob = prob * pos_.probability
             total_prob = total_prob + prob
             rtp = rtp + total_win * prob
-        print("Theoretical chance to win(alt_place): " + str(total_prob))
-        print("Theoretical RTP(alt_place): " + str(rtp))
+        self.log.info("Theoretical chance to win(alt_place): " + str(total_prob))
+        self.log.info("Theoretical RTP(alt_place): " + str(rtp))
         return total_prob, rtp
+
+    @property
+    def win_positions(self):
+        # turning a list of slot lines into a
+        # one-dimensional array of positions
+        win_positions = list()
+        for line in self.lines:
+            line_ = list()
+            for sym in line:
+                line_.append(
+                    PlacedSymbol(
+                        sym.indexes[0] * self.config["scale"][0] +
+                        sym.indexes[1] - 1
+                    )
+                )
+            win_positions.append(line_)
+        return win_positions
 
     def __str__(self):
         matrix = str()
@@ -238,21 +236,19 @@ class SlotMachine:
         ones, returns as a list.
         """
         line_list = list()
-        for lin in self.config["lines"]:
-            for i in range(len(self.matrix)):
-                line = list()
-                line.append([i, 0])
-                k = 1
-                l = i
-                for dir in lin:
-                    if dir == "s":
-                        l = l
-                    elif dir == "d":
-                        l = l + 1
-                    elif dir == "u":
-                        l = l - 1
-                    line.append([l, k])
-                    k = k + 1
+        for _line in self.config["lines"]:
+            for y in range(len(self.matrix)):
+                line = [(y, 0)]
+                x = 1
+                for direction in _line[1:]:
+                    if direction == "s":
+                        y = y
+                    elif direction == "d":
+                        y = y + 1
+                    elif direction == "u":
+                        y = y - 1
+                    line.append((y, x))
+                    x = x + 1
                 line_list.append(line)
 
         #  removal of lines that crawl out of the slot
@@ -266,9 +262,29 @@ class SlotMachine:
 
     @staticmethod
     def read_config(config_path):
+
+        class ConfigEXception(Exception):
+            pass
+
         with open(config_path) as conf:
-            # todo: verify config on load
-            return json.load(conf)
+            config = json.load(conf)
+            max_line = max([len(l) for l in config['lines']])
+            min_line = min([len(l) for l in config['lines']])
+
+            if max_line != min_line:
+                raise ConfigEXception('Varying line length!')
+
+            if config['scale'][0] != max_line:
+                raise ConfigEXception('Bad line lengths!')
+
+            for line in config['lines']:
+                h1 = len([1 for s in line if s == 'd']) + 1
+                h2 = len([1 for s in line if s == 'u']) + 1
+                max_line_height = max(h1, h2)
+                if max_line_height > config['scale'][1]:
+                    raise ConfigEXception(f'Too tall line! {line}')
+
+        return config
 
     def generate_symbols(self):
         """
@@ -295,14 +311,25 @@ class SlotMachine:
         """
         if matrix is None:
             matrix = self.matrix
+
         if lines is None:
             lines = self.lines
+
         for line in lines:
             for symbol in line:
                 if line_type == "2d":
-                    symbol.get_symbol(matrix[symbol.indexes[0]][symbol.indexes[1]])
+                    symbol.set_symbol(
+                        matrix[symbol.indexes[0]][symbol.indexes[1]]
+                    )
+
                 if line_type == "1d":
-                    symbol.get_symbol(matrix[symbol.indexes])
+                    try:
+                        symbol.set_symbol(matrix[symbol.indexes])
+                    except IndexError:
+                        self.log.error(f'matrix: {len(matrix)}, index: {symbol.indexes}')
+                        import pdb; pdb.set_trace()
+                        exit(1)
+
         return lines
 
     def pick_wining_lines(self, lines=None):
@@ -312,7 +339,6 @@ class SlotMachine:
         if necessary, creates a list of winning lines filled
         with symbols (class Placed_Symbol).
         """
-        self.win_lines = list()
         if lines is None:
             lines = self.lines
         win_lines = list()
@@ -355,8 +381,7 @@ class SlotMachine:
                             return False
             return True
 
-        self.win_lines = list(filter(remove_line, win_lines))
-        return self.win_lines
+        return list(filter(remove_line, win_lines))
 
     def output_json(self):
         """
@@ -388,52 +413,47 @@ class SlotMachine:
             "matrix": self.create_tag_matrix(),
             "win_lines": win_lines_out
         }
-        return json.dumps(roll_output)
+        return roll_output
 
-    def roll(self, debug=True):
+    def roll(self):
         self.generate_symbols()
         self.fill_lines_with_symbols()
         self.pick_wining_lines()
-        # if debug:
-        #     self.print_win_matrix()
-        #
         output = self.output_json()
-        # if debug:
-        #     for win_line in json.loads(output)["win_lines"]:
-        #         print(win_line)
-
         return output
 
-    class Symbol:
-        def __init__(self, tag="x", multiplier=1, probability=1, _range=1):
-            self.tag = tag
-            self.multiplier = multiplier
-            self.probability = probability
-            self.range = _range
 
-        def print(self):
-            print(f"{self.tag}, {self.probability}, {self.range}")
+class Symbol:
+    def __init__(self, tag="x", multiplier=1, probability=1, _range=1):
+        self.tag = tag
+        self.multiplier = multiplier
+        self.probability = probability
+        self.range = _range
 
-        def __str__(self):
-            return str(self.tag)
+    def print(self):
+        print(f"{self.tag}, {self.probability}, {self.range}")
 
-    class Placed_Symbol(Symbol):
-        def __init__(self, indexes, tag="x", multiplier=1, probability=1, _range=1):
-            super().__init__(tag, multiplier, probability, _range)
-            self.indexes = indexes
+    def __str__(self):
+        return str(self.tag)
 
-        def get_symbol(self, symbol):
-            self.tag = symbol.tag
-            self.multiplier = symbol.multiplier
-            self.probability = symbol.probability
-            self.range = symbol.range
 
-        def __str__(self):
-            return str(self.indexes) + ", " + str(self.tag)
+class PlacedSymbol(Symbol):
+    def __init__(self, indexes, tag="x", multiplier=1, probability=1, _range=1):
+        super().__init__(tag, multiplier, probability, _range)
+        self.indexes = indexes
 
-        def __eq__(self, other):
-            return (
-                other is not None
-                and self.tag == other.tag
-                and self.indexes == other.indexes
-            )
+    def set_symbol(self, symbol):
+        self.tag = symbol.tag
+        self.multiplier = symbol.multiplier
+        self.probability = symbol.probability
+        self.range = symbol.range
+
+    def __str__(self):
+        return str(self.indexes) + ", " + str(self.tag)
+
+    def __eq__(self, other):
+        return (
+            other is not None
+            and self.tag == other.tag
+            and self.indexes == other.indexes
+        )

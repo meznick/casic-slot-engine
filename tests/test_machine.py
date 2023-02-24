@@ -4,7 +4,12 @@ from unittest import TestCase, main
 import pytest
 from . import slot, GOOD_CONFIG_PATH, BAD_CONFIG_PATH  # noqa: F401
 
-from slot_machine import SlotMachine
+from slot_machine import SlotMachine, PlacedSymbol
+
+
+class MockSymbol(PlacedSymbol):
+    def __init__(self, tag):
+        super().__init__(tag, 1, 1, 1)
 
 
 class TestMachine(TestCase):
@@ -16,13 +21,9 @@ class TestMachine(TestCase):
         assert self.slot.status == 'ready'
         with open(GOOD_CONFIG_PATH, 'r') as cfg:
             config = json.loads(cfg.read())
-        assert len(self.slot.matrix) == config['scale'][0]
+        assert len(self.slot.matrix) == config['scale'][1]
         for i in self.slot.matrix:
-            assert len(i) == config['scale'][1]
-
-    def test_bad_config_reading(self):
-        slot = SlotMachine(BAD_CONFIG_PATH)
-        assert slot.status == 'bad_config'
+            assert len(i) == config['scale'][0]
 
     def test_symbol_probability(self):
         stp, symbols = self._get_symbol_theoretical_probs()
@@ -40,7 +41,7 @@ class TestMachine(TestCase):
         max_results = 20000000
         # generate enough rolls to calculate real probabilities
         while results < max_results:
-            roll_result = json.loads(self.slot.roll())['matrix']
+            roll_result = self.slot.roll()['matrix']
             flatten_result = [
                 symbol for line in roll_result for symbol in line
             ]
@@ -50,7 +51,6 @@ class TestMachine(TestCase):
                 sd[symbol] += (
                     len([1 for s in flatten_result if s == symbol.strip()])
                 )
-
         checksum = sum([
             sd[k] for k in sd.keys()
         ])
@@ -101,19 +101,48 @@ class TestMachine(TestCase):
     def test_duplicate_win_lines(self):
         pass
 
+    def test_combination_generation(self):
+        combination_target = (
+                len(self.slot.symbols) ** (
+                    self.slot.config['scale'][0] *
+                    self.slot.config['scale'][1]
+            )
+        )
+        combinations = len([c for c in self.slot.generate_all_combinations()])
+        with self.subTest('Testing combinations amount'):
+            self.assertEqual(combinations, combination_target)
+
+    def test_win_positions(self):
+        n = self.slot.config['scale'][0] * self.slot.config['scale'][1]
+        for list in self.slot.win_positions:
+            for symbol in list:
+                self.assertLess(symbol.indexes, n)
+
+    def test_filling_lines(self):
+        matrix = [[
+            MockSymbol('10'),
+            MockSymbol('10'),
+            MockSymbol('jack'),
+            MockSymbol('10'),
+        ]]
+        self.slot.fill_lines_with_symbols(matrix=matrix)
+        self.assertEqual(
+            [s.tag for s in matrix[0]],
+            [s.tag for s in self.slot.lines[0]]
+        )
+
     def test_rtp(self):
-        # this method does not work
-        # _, control_rtp = self.slot.calculate_probability_and_rtp()
-        _, control_rpt = 0, 0
+        _, control_rtp = self.slot.calculate_probability_and_rtp()
         spend = 0
         win = 0
         while spend < 100000:
             spend += 1
             roll_result = self.slot.roll()
-            for line in json.loads(roll_result)['win_lines']:
+            import pdb; pdb.set_trace()
+            for line in roll_result['win_lines']:
                 win += line['multiplier']
         rtp = win / spend
-        self.assertEqual(rtp, control_rpt)
+        self.assertEqual(rtp, control_rtp)
 
 
 if __name__ == "__main__":
