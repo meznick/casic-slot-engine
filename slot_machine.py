@@ -135,7 +135,7 @@ class SlotMachine:
         ]
         for i in range(len(self.matrix)):
             for j in range(len(self.matrix[0])):
-                tag_matrix[i][j] = str(self.matrix[i][j])
+                tag_matrix[i][j] = str(self.matrix[i][j]).strip()
         return tag_matrix
 
     def print_win_matrix(self):
