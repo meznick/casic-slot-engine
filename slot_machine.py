@@ -198,7 +198,6 @@ class SlotMachine:
                     line.append([l, k])
                     k = k + 1
                 line_list.append(line)
-        blacklist = list()
 
         #  removal of lines that crawl out of the slot
         def remove_line(line):

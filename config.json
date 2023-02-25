@@ -1,43 +1,51 @@
 {
-  "scale": [ 3, 2 ],
+  "scale": [ 5, 3 ],
   "symbols": [
     {
-      "tag": " ten ",
+      "tag": "  10 ",
       "rarity": 1,
-      "multiplier": 0.25
+      "multiplier": 0.5
+    },
+    {
+      "tag": " jack",
+      "rarity": 1,
+      "multiplier": 0.5
     },
     {
       "tag": "queen",
-      "rarity": 1,
-      "multiplier": 0.25
+      "rarity": 2,
+      "multiplier": 1.5
     },
     {
       "tag": " king",
-      "rarity": 4,
-      "multiplier": 1
+      "rarity": 3,
+      "multiplier": 3
     },
     {
-      "tag": "queen",
-      "rarity": 3,
-      "multiplier": 1.5
+      "tag": " ace ",
+      "rarity": 4,
+      "multiplier": 5
+    },
+    {
+      "tag": " wild",
+      "rarity": 5,
+      "multiplier": 10
+
     }
   ],
   "lines": [
     "ssss",
     "sdss",
     "suss",
-    "sdds",
-    "suus",
     "ssds",
     "ssus"
   ],
   "lines_multiplier": {
-    "2": 1,
-    "3": 2,
-    "4": 3,
-    "5": 5
+    "3": 1,
+    "4": 2,
+    "5": 4
   },
-  "min_line": 2
+  "min_line": 3
 
 
 
