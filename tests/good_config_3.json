@@ -1,5 +1,5 @@
 {
-  "scale": [ 4, 1 ],
+  "scale": [ 4, 3 ],
   "symbols": [
     {
       "tag": "  10 ",
@@ -33,7 +33,9 @@
     }
   ],
   "lines": [
-    "ssss"
+    "ssss",
+    "sssu",
+    "sssd"
   ],
   "lines_multiplier": {
     "3": 1,

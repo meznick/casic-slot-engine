@@ -312,7 +312,6 @@ class SlotMachine:
         if lines is None:
             lines = self.lines
 
-        import pdb; pdb.set_trace()
         for line in lines:
             for symbol in line:
                 if line_type == "2d":
@@ -337,37 +336,49 @@ class SlotMachine:
 
         win_lines = list()
         for line in lines:
-            check = False
-            target_tag = None
-            t = 0
-            # select first non-wild tag as target to compare
-            while (not target_tag) and t < len(line):
-                if line[t].tag != 'wild':
-                    target_tag = line[t].tag
+            # each line can have multiple combos, but we should choose highest
+            combinations = list()
+            # select first tag as target to compare
+            combinations.append([line[0]])
+            target_tag = line[0].tag
+            for s in line[1:]:
+                if s.tag in (target_tag, 'wild'):
+                    combinations[len(combinations) - 1].append(s)
                 else:
-                    t += 1
+                    combinations.append([s])
+                    target_tag = s.tag
 
-            # compare all tags in line to target
-            for symbol in line:
-                check = symbol.tag in ('wild', target_tag)
-                if not check:
-                    break
+            # filter too short lines
+            combinations = [c for c in combinations if len(c) >= self.min_line]
 
-            if check and len(line) >= self.min_line:
-                win_lines.append(line)
+            # select highest multiplier combo
+            if combinations:
+                multipliers = [
+                    self.calculate_line_multiplier(
+                        c[0].multiplier, c
+                    ) for c in combinations
+                ]
+                best_combo = combinations[multipliers.index(max(multipliers))]
+                win_lines.append(best_combo)
 
-        def remove_line(line):
-            #  removing unnecessary lines (repetitions, nesting)
-            if win_lines.count(line) > 1:
-                return False
-            for line_ in win_lines:
-                if line != line_:
-                    if len(line) <= len(line_):
-                        if line == line_[: len(line)]:
-                            return False
-            return True
+        # remove lines except one having shared symbol
+        if len(win_lines) > 1:
+            cleared_win_lines = [win_lines[0]]
+            for line in win_lines[1:]:
+                check = True
+                for symbol in line:
+                    check = symbol.indexes not in [
+                        [s.indexes for s in wl]
+                        for wl in cleared_win_lines
+                    ]
+                    if not check:
+                        break
+                if check:
+                    cleared_win_lines.append(line)
+        else:
+            cleared_win_lines = win_lines
 
-        return list(filter(remove_line, win_lines))
+        return cleared_win_lines
 
     def output_json(self, win_lines):
         """
@@ -390,7 +401,7 @@ class SlotMachine:
                 {
                     "indexes": indexes_,
                     "symbol": symbol_info_[0],
-                    "multiplier": self.calculate_line_multiplier(symbol_info_, line),
+                    "multiplier": self.calculate_line_multiplier(symbol_info_[1], line),
                 }
             )
 
@@ -400,8 +411,8 @@ class SlotMachine:
         }
         return roll_output
 
-    def calculate_line_multiplier(self, symbol_info_, line):
-        return symbol_info_[1] * self.lines_multiplier[str(len(line))]
+    def calculate_line_multiplier(self, symbol_multiplier, line):
+        return symbol_multiplier * self.lines_multiplier[str(len(line))]
 
     def roll(self):
         self.generate_symbols()
