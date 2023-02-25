@@ -1,4 +1,4 @@
-name: Python build and test
+name: Generate coverage
 
 on: [pull_request, push]
 
@@ -12,7 +12,7 @@ jobs:
         with:
           python-version: "3.10.9"
       - name: Install deps
-        run: pip install coverage
+        run: pip install -r requirements.txt
       - name: Perform unit tests
         run: |
           coverage run --omit='./tests/*' \
