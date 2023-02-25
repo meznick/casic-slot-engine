@@ -35,7 +35,7 @@ class SlotMachine:
         self.config = self.read_config(config_path)
         #  creating a character matrix of the desired size
         self.matrix = [
-            ["x"] * self.config["scale"][0]
+            [Symbol('x')] * self.config["scale"][0]
             for i in range(self.config["scale"][1])
         ]
         #  calculation of the probability of a
@@ -111,24 +111,21 @@ class SlotMachine:
         rtp = 0
         total_prob = 0
         for comb in self.generate_all_combinations():
-            self.fill_lines_with_symbols(comb, self.win_positions, "1d")
-            self.pick_wining_lines(self.win_positions)
+            lines = self.fill_lines_with_symbols(comb, self.win_positions, "1d")
+            win_lines = self.pick_wining_lines(lines)
             prob = 0
             total_win = 0
-            for line in self.win_lines:
-                win_symbol = self.Symbol()
+            for line in win_lines:
+                win_symbol = Symbol()
                 for symbol in line:
                     win_symbol = symbol
                     if symbol.tag != " wild":
                         break
-                total_win = (
-                    total_win
-                    + (
+                total_win += (
                         win_symbol.multiplier *
                         self.lines_multiplier[str(len(line))]
-                    )
                 )
-            if len(self.win_lines) != 0:
+            if len(win_lines) != 0:
                 prob = 1
                 for pos_ in comb:
                     prob = prob * pos_.probability
@@ -315,6 +312,7 @@ class SlotMachine:
         if lines is None:
             lines = self.lines
 
+        import pdb; pdb.set_trace()
         for line in lines:
             for symbol in line:
                 if line_type == "2d":
@@ -323,12 +321,7 @@ class SlotMachine:
                     )
 
                 if line_type == "1d":
-                    try:
-                        symbol.set_symbol(matrix[symbol.indexes])
-                    except IndexError:
-                        self.log.error(f'matrix: {len(matrix)}, index: {symbol.indexes}')
-                        import pdb; pdb.set_trace()
-                        exit(1)
+                    symbol.set_symbol(matrix[symbol.indexes])
 
         return lines
 
@@ -341,37 +334,30 @@ class SlotMachine:
         """
         if lines is None:
             lines = self.lines
+
         win_lines = list()
         for line in lines:
-            line_ = list()
-            line_.append(line[0])
-            for i in range(1, len(line)):
-                check = False
-                if line[i - 1].tag == " wild":
-                    if line[i].tag == " wild":
-                        check = True
-                    else:
-                        check = True
-                        k = 0
-                        while k < i:
-                            if (line[k].tag != line[i].tag) and (
-                                line[k].tag != " wild"
-                            ):
-                                check = False
-                                break
-                            k = k + 1
+            check = False
+            target_tag = None
+            t = 0
+            # select first non-wild tag as target to compare
+            while (not target_tag) and t < len(line):
+                if line[t].tag != 'wild':
+                    target_tag = line[t].tag
                 else:
-                    if (line[i].tag == line[i - 1].tag) or (line[i].tag == " wild"):
-                        check = True
-                if check:
-                    line_.append(line[i])
-                else:
-                    break
-            if len(line_) >= self.min_line:
-                win_lines.append(line_)
+                    t += 1
 
-        #  removing unnecessary lines (repetitions, nesting)
+            # compare all tags in line to target
+            for symbol in line:
+                check = symbol.tag in ('wild', target_tag)
+                if not check:
+                    break
+
+            if check and len(line) >= self.min_line:
+                win_lines.append(line)
+
         def remove_line(line):
+            #  removing unnecessary lines (repetitions, nesting)
             if win_lines.count(line) > 1:
                 return False
             for line_ in win_lines:
@@ -383,13 +369,13 @@ class SlotMachine:
 
         return list(filter(remove_line, win_lines))
 
-    def output_json(self):
+    def output_json(self, win_lines):
         """
         Based on the system matrix and the set of winning lines,
         generates a JSON string for displaying information.
         """
         win_lines_out = list()
-        for line in self.win_lines:
+        for line in win_lines:
             symbol_info_ = list()
             indexes_ = list()
             for symbol in line:
@@ -404,8 +390,7 @@ class SlotMachine:
                 {
                     "indexes": indexes_,
                     "symbol": symbol_info_[0],
-                    "multiplier": symbol_info_[1]
-                    * self.lines_multiplier[str(len(line))],
+                    "multiplier": self.calculate_line_multiplier(symbol_info_, line),
                 }
             )
 
@@ -415,12 +400,16 @@ class SlotMachine:
         }
         return roll_output
 
+    def calculate_line_multiplier(self, symbol_info_, line):
+        return symbol_info_[1] * self.lines_multiplier[str(len(line))]
+
     def roll(self):
         self.generate_symbols()
-        self.fill_lines_with_symbols()
-        self.pick_wining_lines()
-        output = self.output_json()
-        return output
+        return self.output_json(
+            self.pick_wining_lines(
+                self.fill_lines_with_symbols()
+            )
+        )
 
 
 class Symbol:
@@ -442,7 +431,7 @@ class PlacedSymbol(Symbol):
         super().__init__(tag, multiplier, probability, _range)
         self.indexes = indexes
 
-    def set_symbol(self, symbol):
+    def set_symbol(self, symbol: Symbol):
         self.tag = symbol.tag
         self.multiplier = symbol.multiplier
         self.probability = symbol.probability
