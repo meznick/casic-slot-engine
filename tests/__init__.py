@@ -96,6 +96,14 @@ PICKING_WIN_LINES_TEST_MATRICES = [
             MockSymbol('10', 1, (2, 2)),
             MockSymbol('10', 1, (2, 3)),
         ]
+    ],
+    [
+        [
+            MockSymbol('wild'),
+            MockSymbol('wild'),
+            MockSymbol('wild'),
+            MockSymbol('wild'),
+        ]
     ]
 ]
 
@@ -112,13 +120,17 @@ PICKING_WIN_LINES_TARGET_WIN_LINES = [
     ],
     [
         ['10', '10', '10', '10']
+    ],
+    [
+        ['wild', 'wild', 'wild', 'wild']
     ]
 ]
 
 PICKING_WIN_LINES_CONFIGS = [
     'tests/good_config.json',
     'tests/good_config_2.json',
-    'tests/good_config_3.json'
+    'tests/good_config_3.json',
+    'tests/good_config.json',
 ]
 
 FILLING_LINES_TEST_MATRIX = [[
