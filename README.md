@@ -1,1 +1,1 @@
-![images](https://user-images.githubusercontent.com/22574398/217358548-436ec41a-3e89-4344-a55a-adf209a10162.jpg)
+[![Coverage Status](https://coveralls.io/repos/github/KeyRats/casic-slot-engine/badge.svg?branch=main)](https://coveralls.io/github/KeyRats/casic-slot-engine?branch=main)
