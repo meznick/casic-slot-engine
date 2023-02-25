@@ -3,17 +3,19 @@
 
 Just a simple engine + simple API microservice for it.
 
-Distributed under GPLv3.
+Distributed under [GPLv3](LICENSE.md).
 
 ### What's implemented
 - [x] Reading config. While in service, config location is set in config.py
 - [x] Basic config verification
 - [x] Slot rolling new matrix and win lines according to config
 - [x] Synchronous service accessible via HTTP
-- [] Bonus games
-- [] Async in service
-- [] Multithread rolling
-- [] RPC service
+
+### And what's not
+- Bonus games
+- Async in service
+- Multithread rolling
+- RPC service
 
 ### Contributing
 Suggest new features using issues on this repo. For now first priority on
