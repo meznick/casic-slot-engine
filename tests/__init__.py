@@ -20,7 +20,7 @@ PICKING_WIN_LINES_TEST_MATRICES = [
         [
             MockSymbol('10'),
             MockSymbol('10'),
-            MockSymbol('jack'),
+            MockSymbol('wild'),
             MockSymbol('10'),
         ]
     ],
@@ -101,6 +101,7 @@ PICKING_WIN_LINES_TEST_MATRICES = [
 
 PICKING_WIN_LINES_TARGET_WIN_LINES = [
     [
+        ['10', '10', 'wild', '10']
     ],
     [
         ['wild', 'wild', '10', '10'],
@@ -123,10 +124,7 @@ PICKING_WIN_LINES_TARGET_WIN_LINES = [
     ],
     [
         ['wild', 'wild', 'wild', 'wild']
-    ],
-    [
-        ['10', '10', '10', '10']
-    ],
+    ]
 ]
 
 PICKING_WIN_LINES_CONFIGS = [
@@ -139,7 +137,6 @@ PICKING_WIN_LINES_CONFIGS = [
     'tests/good_config_2.json',
     'tests/good_config_2.json',
     'tests/good_config.json',
-    'tests/good_config_4.json',
 ]
 
 FILLING_LINES_TEST_MATRICES = [
@@ -155,7 +152,7 @@ FILLING_LINES_TEST_MATRICES = [
             MockSymbol('ace'),
             MockSymbol('ace'),
             MockSymbol('10'),
-            MockSymbol('king'),
+            MockSymbol('wild'),
             MockSymbol('ace')
         ],
         [
@@ -194,16 +191,16 @@ FILLING_LINES_TEST_MATRICES = [
 FILLING_LINES_TARGET_LINES = [
     [
         ['10', 'ace', 'jack', 'king', 'wild'],
-        ['ace', 'ace', '10', 'king', 'ace'],
+        ['ace', 'ace', '10', 'wild', 'ace'],
         ['10', 'king', 'ace', '10', 'ace'],
-        ['10', 'ace', '10', 'king', 'ace'],
+        ['10', 'ace', '10', 'wild', 'ace'],
         ['ace', 'ace', 'ace', '10', 'ace'],
         ['ace', 'ace', 'jack', 'king', 'wild'],
-        ['10', 'king', '10', 'king', 'ace'],
-        ['10', 'ace', 'jack', 'king', 'ace'],
+        ['10', 'king', '10', 'wild', 'ace'],
+        ['10', 'ace', 'jack', 'wild', 'ace'],
         ['ace', 'ace', '10', '10', 'ace'],
         ['ace', 'ace', '10', 'king', 'wild'],
-        ['10', 'king', 'ace', 'king', 'ace'],
+        ['10', 'king', 'ace', 'wild', 'ace'],
     ],
     [
         ['ace', 'jack', 'jack', '10', '10'],
