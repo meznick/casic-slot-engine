@@ -342,6 +342,9 @@ class SlotMachine:
             combination.append(line[0])
             target_tag = combination[0].tag
             for s in line[1:]:
+                if target_tag == 'wild':
+                    target_tag = s.tag
+
                 if s.tag in (target_tag, 'wild'):
                     combination.append(s)
                 else:
