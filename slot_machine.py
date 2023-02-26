@@ -337,29 +337,26 @@ class SlotMachine:
         win_lines = list()
         for line in lines:
             # each line can have multiple combos, but we should choose highest
-            combinations = list()
+            combination = list()
             # select first tag as target to compare
-            combinations.append([line[0]])
-            target_tag = line[0].tag
+            combination.append(line[0])
+            target_tag = combination[0].tag
             for s in line[1:]:
                 if s.tag in (target_tag, 'wild'):
-                    combinations[len(combinations) - 1].append(s)
+                    combination.append(s)
                 else:
-                    combinations.append([s])
-                    target_tag = s.tag
+                    break
 
             # filter too short lines
-            combinations = [c for c in combinations if len(c) >= self.min_line]
+            if len(combination) >= self.min_line:
+                win_lines.append(combination)
 
-            # select highest multiplier combo
-            if combinations:
-                multipliers = [
-                    self.calculate_line_multiplier(
-                        c[0].multiplier, c
-                    ) for c in combinations
-                ]
-                best_combo = combinations[multipliers.index(max(multipliers))]
-                win_lines.append(best_combo)
+        if len(win_lines) > 1:
+            # order win lines by descending multiplier
+            win_lines.sort(
+                key=lambda l: self.calculate_line_multiplier(l[0].multiplier, l),
+                reverse=True
+            )
 
         # remove lines except one having shared symbol
         if len(win_lines) > 1:
@@ -368,8 +365,7 @@ class SlotMachine:
                 check = True
                 for symbol in line:
                     check = symbol.indexes not in [
-                        [s.indexes for s in wl]
-                        for wl in cleared_win_lines
+                        s.indexes for wl in cleared_win_lines for s in wl
                     ]
                     if not check:
                         break
@@ -377,6 +373,7 @@ class SlotMachine:
                     cleared_win_lines.append(line)
         else:
             cleared_win_lines = win_lines
+
 
         return cleared_win_lines
 

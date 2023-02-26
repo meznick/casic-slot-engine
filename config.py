@@ -1,1 +1,1 @@
-CONFIG_PATH = 'tests/good_config.json'
+CONFIG_PATH = 'config.json'

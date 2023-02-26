@@ -7,8 +7,9 @@ from slot_machine import SlotMachine
 from . import (
     GOOD_CONFIG_PATH, PICKING_WIN_LINES_TARGET_WIN_LINES,
     PICKING_WIN_LINES_TEST_MATRICES,
-    PICKING_WIN_LINES_CONFIGS, FILLING_LINES_TEST_MATRIX,
-    slot    # noqa: F401
+    PICKING_WIN_LINES_CONFIGS, FILLING_LINES_TEST_MATRICES,
+    FILLING_LINES_TARGET_LINES,
+    slot  # noqa: F401
 )
 
 
@@ -119,11 +120,15 @@ class TestMachine(TestCase):
                 self.assertLess(symbol.indexes, n)
 
     def test_filling_lines(self):
-        self.slot.fill_lines_with_symbols(matrix=FILLING_LINES_TEST_MATRIX)
-        self.assertEqual(
-            [s.tag for s in FILLING_LINES_TEST_MATRIX[0]],
-            [s.tag for s in self.slot.lines[0]]
-        )
+        for matrix, lines in zip(
+                FILLING_LINES_TEST_MATRICES,
+                FILLING_LINES_TARGET_LINES
+        ):
+            slot = SlotMachine(config_path='tests/good_config_4.json')
+            slot.fill_lines_with_symbols(matrix=matrix)
+            generated_lines = [[s.tag for s in line] for line in slot.lines]
+            for line in lines:
+                self.assertIn(line, generated_lines)
 
     def test_picking_win_lines(self):
         for lines, target_wl, config in zip(

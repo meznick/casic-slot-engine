@@ -30,7 +30,6 @@
       "tag": " wild",
       "rarity": 5,
       "multiplier": 10
-
     }
   ],
   "lines": [
@@ -46,7 +45,4 @@
     "5": 4
   },
   "min_line": 3
-
-
-
 }
