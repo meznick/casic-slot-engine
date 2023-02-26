@@ -97,6 +97,29 @@ PICKING_WIN_LINES_TEST_MATRICES = [
             MockSymbol('wild'),
         ]
     ],
+    [
+        [
+            MockSymbol('king', 4, (0, 0)),
+            MockSymbol('ace', 4, (0, 1)),
+            MockSymbol('wild', 10,(0, 2)),
+            MockSymbol('10', 1,(0, 3)),
+            MockSymbol('10', 1,(0, 4)),
+        ],
+        [
+            MockSymbol('jack', 2, (1, 0)),
+            MockSymbol('jack', 2, (1, 1)),
+            MockSymbol('jack', 2, (1, 2)),
+            MockSymbol('wild', 2, (1, 3)),
+            MockSymbol('jack', 10, (1, 4)),
+        ],
+        [
+            MockSymbol('10', 1, (2, 0)),
+            MockSymbol('jack', 2, (2, 1)),
+            MockSymbol('wild', 10, (2, 2)),
+            MockSymbol('ace', 4, (2, 3)),
+            MockSymbol('wild', 10, (2, 4)),
+        ],
+    ],
 ]
 
 PICKING_WIN_LINES_TARGET_WIN_LINES = [
@@ -124,7 +147,10 @@ PICKING_WIN_LINES_TARGET_WIN_LINES = [
     ],
     [
         ['wild', 'wild', 'wild', 'wild']
-    ]
+    ],
+    [
+        ['jack', 'jack', 'jack', 'wild', 'jack']
+    ],
 ]
 
 PICKING_WIN_LINES_CONFIGS = [
@@ -137,6 +163,7 @@ PICKING_WIN_LINES_CONFIGS = [
     'tests/good_config_2.json',
     'tests/good_config_2.json',
     'tests/good_config.json',
+    'tests/good_config_4.json'
 ]
 
 FILLING_LINES_TEST_MATRICES = [
@@ -186,6 +213,29 @@ FILLING_LINES_TEST_MATRICES = [
             MockSymbol('10', 1, (2, 4)),
         ]
     ],
+    [
+        [
+            MockSymbol('king', 4, (0, 0)),
+            MockSymbol('ace', 4, (0, 1)),
+            MockSymbol('wild', 10, (0, 2)),
+            MockSymbol('10', 1, (0, 3)),
+            MockSymbol('10', 1, (0, 4)),
+        ],
+        [
+            MockSymbol('jack', 2, (1, 0)),
+            MockSymbol('jack', 2, (1, 1)),
+            MockSymbol('jack', 2, (1, 2)),
+            MockSymbol('wild', 2, (1, 3)),
+            MockSymbol('jack', 10, (1, 4)),
+        ],
+        [
+            MockSymbol('10', 1, (2, 0)),
+            MockSymbol('jack', 2, (2, 1)),
+            MockSymbol('wild', 10, (2, 2)),
+            MockSymbol('ace', 4, (2, 3)),
+            MockSymbol('wild', 10, (2, 4)),
+        ],
+    ],
 ]
 
 FILLING_LINES_TARGET_LINES = [
@@ -215,4 +265,17 @@ FILLING_LINES_TARGET_LINES = [
         ['10', '10', '10', '10', '10'],
         ['ace', '10', 'king', '10', 'ace'],
     ],
+    [
+        ['king', 'ace', 'wild', '10', '10'],
+        ['jack', 'jack', 'jack', 'wild', 'jack'],
+        ['10', 'jack', 'wild', 'ace', 'wild'],
+        ['king', 'ace', 'jack', 'wild', 'jack'],
+        ['jack', 'jack', 'wild', 'ace', 'wild'],
+        ['jack', 'jack', 'wild', '10', '10'],
+        ['10', 'jack', 'jack', 'wild', 'jack'],
+        ['king', 'ace', 'wild', 'wild', 'jack'],
+        ['jack', 'jack', 'jack', 'ace', 'wild'],
+        ['jack', 'jack', 'jack', '10', '10'],
+        ['10', 'jack', 'wild', 'wild', 'jack'],
+    ]
 ]
