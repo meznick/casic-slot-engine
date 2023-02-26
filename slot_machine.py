@@ -368,8 +368,7 @@ class SlotMachine:
                 check = True
                 for symbol in line:
                     check = symbol.indexes not in [
-                        [s.indexes for s in wl]
-                        for wl in cleared_win_lines
+                        s.indexes for wl in cleared_win_lines for s in wl
                     ]
                     if not check:
                         break
