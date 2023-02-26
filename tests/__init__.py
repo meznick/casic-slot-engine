@@ -27,8 +27,8 @@ PICKING_WIN_LINES_TEST_MATRICES = [
     [
         [
             MockSymbol('wild'),
+            MockSymbol('wild'),
             MockSymbol('10'),
-            MockSymbol('jack'),
             MockSymbol('10'),
         ],
     ],
@@ -103,6 +103,7 @@ PICKING_WIN_LINES_TARGET_WIN_LINES = [
     [
     ],
     [
+        ['wild', 'wild', '10', '10'],
     ],
     [
         ['10', '10', '10', '10'],
