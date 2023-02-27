@@ -2,12 +2,12 @@
   "scale": [ 5, 3 ],
   "symbols": [
     {
-      "tag": "  10 ",
+      "tag": "10",
       "rarity": 1,
       "multiplier": 0.5
     },
     {
-      "tag": " jack",
+      "tag": "jack",
       "rarity": 1,
       "multiplier": 0.5
     },
@@ -17,17 +17,17 @@
       "multiplier": 1.5
     },
     {
-      "tag": " king",
+      "tag": "king",
       "rarity": 3,
       "multiplier": 3
     },
     {
-      "tag": " ace ",
+      "tag": "ace",
       "rarity": 4,
       "multiplier": 5
     },
     {
-      "tag": " wild",
+      "tag": "wild",
       "rarity": 5,
       "multiplier": 10
 

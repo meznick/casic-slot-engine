@@ -6,9 +6,10 @@ import pytest
 from slot_machine import SlotMachine
 from . import (
     GOOD_CONFIG_PATH, PICKING_WIN_LINES_TARGET_WIN_LINES,
-    PICKING_WIN_LINES_TEST_MATRICES,
+    PICKING_WIN_LINES_TEST_MATRICES, ROLL_TARGET_WIN_LINES,
     PICKING_WIN_LINES_CONFIGS, FILLING_LINES_TEST_MATRICES,
-    FILLING_LINES_TARGET_LINES,
+    FILLING_LINES_TARGET_LINES, ROLL_INPUT_MATRICES,
+    OUTPUT_WIN_LINES, OUTPUT_TARGET_WIN_LINES,
     slot  # noqa: F401
 )
 
@@ -142,6 +143,36 @@ class TestMachine(TestCase):
                 self.assertEqual(
                     [[s.tag for s in line] for line in wl],
                     target_wl
+                )
+
+    def test_roll(self):
+        for matrix, target_wl in zip(
+            ROLL_INPUT_MATRICES,
+            ROLL_TARGET_WIN_LINES
+        ):
+            slot = SlotMachine(config_path='tests/good_config_4.json')
+            wl = slot.pick_wining_lines(
+                slot.fill_lines_with_symbols(matrix)
+            )
+            wl_indexes = [[s.indexes for s in l] for l in wl]
+            with self.subTest('Testing full roll'):
+                self.assertEqual(target_wl, wl_indexes)
+
+    def test_output_json(self):
+        for lines, target_wl in zip(
+            OUTPUT_WIN_LINES,
+            OUTPUT_TARGET_WIN_LINES
+        ):
+            slot = SlotMachine(config_path='tests/good_config_4.json')
+            output = slot.output_json(lines)
+            with self.subTest('Testing output generation'):
+                self.assertEqual(
+                    target_wl[0],
+                    output['win_lines'][0]['indexes']
+                )
+                self.assertEqual(
+                    lines[0][0].tag,
+                    output['win_lines'][0]['symbol']
                 )
 
     def test_rtp(self):
