@@ -1,5 +1,5 @@
 # Casino Slot Engine
-[![Coverage Status](https://coveralls.io/repos/github/KeyRats/casic-slot-engine/badge.svg?branch=main)](https://coveralls.io/github/KeyRats/casic-slot-engine?branch=main)
+[![Coverage Status](https://coveralls.io/repos/github/meznick/casic-slot-engine/badge.svg?branch=main)](https://coveralls.io/github/meznick/casic-slot-engine?branch=main)
 
 Just a simple engine + simple API microservice for it.
 
