@@ -56,8 +56,6 @@ class SlotMachine:
                 )
             )
 
-        for symbol in self.symbols:
-            symbol.print()
         # getting a list of slot lines based on a template from
         # the config minus lines that do not fit into the slot
         lines_ = self.lines_list()
@@ -119,7 +117,7 @@ class SlotMachine:
                 win_symbol = Symbol()
                 for symbol in line:
                     win_symbol = symbol
-                    if symbol.tag != " wild":
+                    if symbol.tag != "wild":
                         break
                 total_win += (
                         win_symbol.multiplier *
@@ -160,14 +158,6 @@ class SlotMachine:
             matrix += "|\n"
         return matrix
 
-    def print(self, matrix):
-        out = ""
-        for string in matrix:
-            for cell in string:
-                out += "| " + str(cell) + " "
-            out += "|\n"
-        print(out)
-
     def create_tag_matrix(self):
         """Creates a matrix filled with character tags to output to json."""
         tag_matrix = [
@@ -198,7 +188,6 @@ class SlotMachine:
             for cell in string:
                 matrix += "| " + str(cell) + " "
             matrix += "|\n"
-        print(matrix)
 
     def symbol_probability(self):
         """calculates the probability of an event with a rarity of 1"""
@@ -377,7 +366,6 @@ class SlotMachine:
         else:
             cleared_win_lines = win_lines
 
-
         return cleared_win_lines
 
     def output_json(self, win_lines):
@@ -390,7 +378,7 @@ class SlotMachine:
             symbol_info_ = list()
             indexes_ = list()
             for symbol in line:
-                if symbol.tag == " wild":
+                if symbol.tag == "wild":
                     symbol_info_ = [symbol.tag, symbol.multiplier]
                 else:
                     symbol_info_ = [symbol.tag, symbol.multiplier]
@@ -416,10 +404,9 @@ class SlotMachine:
 
     def roll(self):
         self.generate_symbols()
+        self.fill_lines_with_symbols()
         return self.output_json(
-            self.pick_wining_lines(
-                self.fill_lines_with_symbols()
-            )
+            self.pick_wining_lines()
         )
 
 
@@ -429,9 +416,6 @@ class Symbol:
         self.multiplier = multiplier
         self.probability = probability
         self.range = _range
-
-    def print(self):
-        print(f"{self.tag}, {self.probability}, {self.range}")
 
     def __str__(self):
         return str(self.tag)

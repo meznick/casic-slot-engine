@@ -279,3 +279,103 @@ FILLING_LINES_TARGET_LINES = [
         ['10', 'jack', 'wild', 'wild', 'jack'],
     ]
 ]
+
+ROLL_INPUT_MATRICES = [
+    [
+        [
+            MockSymbol('king', 4, (0, 0)),
+            MockSymbol('10', 1, (0, 1)),
+            MockSymbol('jack', 2, (0, 2)),
+            MockSymbol('queen', 3, (0, 3)),
+            MockSymbol('queen', 3, (0, 4)),
+        ],
+        [
+            MockSymbol('king', 4, (1, 0)),
+            MockSymbol('king', 4, (1, 1)),
+            MockSymbol('jack', 2, (1, 2)),
+            MockSymbol('10', 1, (1, 3)),
+            MockSymbol('queen', 3, (1, 4)),
+        ],
+        [
+            MockSymbol('king', 4, (2, 0)),
+            MockSymbol('queen', 3, (2, 1)),
+            MockSymbol('wild', 10, (2, 2)),
+            MockSymbol('jack', 2, (2, 3)),
+            MockSymbol('jack', 2, (2, 4)),
+        ]
+    ],
+    [
+        [
+            MockSymbol('jack', 2, (0, 0)),
+            MockSymbol('ace', 5, (0, 1)),
+            MockSymbol('jack', 2, (0, 2)),
+            MockSymbol('jack', 2, (0, 3)),
+            MockSymbol('jack', 2, (0, 4)),
+        ],
+        [
+            MockSymbol('jack', 2, (1, 0)),
+            MockSymbol('jack', 2, (1, 1)),
+            MockSymbol('jack', 2, (1, 2)),
+            MockSymbol('jack', 2, (1, 3)),
+            MockSymbol('10', 1, (1, 4)),
+        ],
+        [
+            MockSymbol('queen', 3, (2, 0)),
+            MockSymbol('10', 1, (2, 1)),
+            MockSymbol('jack', 2, (2, 2)),
+            MockSymbol('jack', 2, (2, 3)),
+            MockSymbol('ace', 5, (2, 4)),
+        ],
+    ],
+    [
+        [
+            MockSymbol('ace', 5, (0, 0)),
+            MockSymbol('queen', 3, (0, 1)),
+            MockSymbol('10', 1, (0, 2)),
+            MockSymbol('wild', 10, (0, 3)),
+            MockSymbol('ace', 5, (0, 4)),
+        ],
+        [
+            MockSymbol('king', 4, (1, 0)),
+            MockSymbol('wild', 10, (1, 1)),
+            MockSymbol('king', 4, (1, 2)),
+            MockSymbol('king', 4, (1, 3)),
+            MockSymbol('10', 1, (1, 4)),
+        ],
+        [
+            MockSymbol('10', 1, (2, 0)),
+            MockSymbol('jack', 2, (2, 1)),
+            MockSymbol('jack', 2, (2, 2)),
+            MockSymbol('queen', 3, (2, 3)),
+            MockSymbol('queen', 3, (2, 4)),
+        ],
+    ]
+]
+
+ROLL_TARGET_WIN_LINES = [
+    [
+        [(1, 0), (1, 1), (2, 2)]
+    ],
+    [
+        [(1, 0), (1, 1), (0, 2), (0, 3), (0, 4)]
+    ],
+    [
+        [(1, 0), (1, 1), (1, 2), (1, 3)]    # last element can also be (0, 3)
+    ]
+]
+
+OUTPUT_WIN_LINES = [
+    [
+        [
+            MockSymbol('king', 4, (1, 0)),
+            MockSymbol('king', 4, (1, 1)),
+            MockSymbol('wild', 10, (2, 2)),
+        ],
+    ],
+]
+
+OUTPUT_TARGET_WIN_LINES = [
+    [
+        [[1, 0], [1, 1], [2, 2]],
+    ],
+]
